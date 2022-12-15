@@ -16,7 +16,12 @@ func New(input string) *Lexer {
 	return lexer
 }
 
+/*
+reads next character in the input string
+and increments the [position] & [readPosition]
+*/
 func (lexer *Lexer) readChar() {
+	// check for EOF
 	if lexer.readPosition >= len(lexer.input) {
 		lexer.char = 0
 	} else {
@@ -27,6 +32,9 @@ func (lexer *Lexer) readChar() {
 	lexer.readPosition += 1
 }
 
+/*
+returns next token from the input string
+*/
 func (lexer *Lexer) NextToken() token.Token {
 	var tok token.Token
 
@@ -34,6 +42,7 @@ func (lexer *Lexer) NextToken() token.Token {
 
 	switch lexer.char {
 	case '=':
+		// check for "==" (equality operator)
 		if lexer.peekChar() == '=' {
 			ch := lexer.char
 			lexer.readChar()
@@ -58,6 +67,7 @@ func (lexer *Lexer) NextToken() token.Token {
 	case '/':
 		tok = newToken(token.SLASH, lexer.char)
 	case '!':
+		// check for "!=" (NOT_EQ)
 		if lexer.peekChar() == '=' {
 			ch := lexer.char
 			lexer.readChar()
@@ -79,6 +89,7 @@ func (lexer *Lexer) NextToken() token.Token {
 	default:
 		if isLetter(lexer.char) {
 			tok.Literal = lexer.readIdentifier()
+			// check if the identifier is a token
 			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
 		} else if isDigit(lexer.char) {
@@ -94,26 +105,44 @@ func (lexer *Lexer) NextToken() token.Token {
 	return tok
 }
 
+/*
+newToken return new instance of type Token struct
+{Type: tokenType, Literal: string}
+*/
 func newToken(tokenType token.TokenType, ch byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(ch)}
 }
 
+/*
+function to return an identifier name
+using maximal munch rule (longest common prefix)
+*/
 func (lexer *Lexer) readIdentifier() string {
-	position := lexer.position
+	start := lexer.position
+
+	// readChar until char is not a letter
 	for isLetter(lexer.char) {
 		lexer.readChar()
 	}
-	return lexer.input[position:lexer.position]
+
+	// end position = lexer.position
+	return lexer.input[start:lexer.position]
 }
 
+/*
+function to return number
+using maximal munch rule (longest common prefix)
+*/
 func (lexer *Lexer) readNumber() string {
-	position := lexer.position
+	start := lexer.position
 
+	// readChar until char is not a number
 	for isDigit(lexer.char) {
 		lexer.readChar()
 	}
 
-	return lexer.input[position:lexer.position]
+	// end position = lexer.position
+	return lexer.input[start:lexer.position]
 }
 
 func (lexer *Lexer) peekChar() byte {
