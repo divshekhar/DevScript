@@ -87,7 +87,7 @@ func (lexer *Lexer) NextToken() token.Token {
 		tok.Literal = ""
 		tok.Type = token.EOF
 	default:
-		if isLetter(lexer.char) {
+		if validStartIdentifier(lexer.char) {
 			tok.Literal = lexer.readIdentifier()
 			// check if the identifier is a token
 			tok.Type = token.LookupIdent(tok.Literal)
@@ -121,7 +121,7 @@ func (lexer *Lexer) readIdentifier() string {
 	start := lexer.position
 
 	// readChar until char is not a letter
-	for isLetter(lexer.char) {
+	for validIdentifier(lexer.char) {
 		lexer.readChar()
 	}
 
@@ -153,8 +153,19 @@ func (lexer *Lexer) peekChar() byte {
 	}
 }
 
+/*
+returns true only if the identifier starts with a letter or _ else false
+*/
+func validStartIdentifier(ch byte) bool {
+	return isLetter(ch) || ch == '_'
+}
+
+func validIdentifier(ch byte) bool {
+	return isLetter(ch) || isDigit(ch) || ch == '_' || ch == '-'
+}
+
 func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+	return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z')
 }
 
 func isDigit(ch byte) bool {
