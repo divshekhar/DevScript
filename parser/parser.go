@@ -7,12 +7,19 @@ import (
 	"fmt"
 )
 
+/*
+Parser struct represents the parser
+*/
 type Parser struct {
-	l *lexer.Lexer
+	// Lexer instance to get token stream
+	lexer *lexer.Lexer
 
-	curToken  token.Token
+	// Pointer to the current token
+	curToken token.Token
+	// Pointer to the next token
 	peekToken token.Token
 
+	// List of errors
 	errors []string
 
 	prefixParseFns map[token.TokenType]prefixParseFn
@@ -24,114 +31,194 @@ type (
 	infixParseFn  func(ast.Expression) ast.Expression
 )
 
-func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
-	p.prefixParseFns[tokenType] = fn
+func (parser *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+	parser.prefixParseFns[tokenType] = fn
 }
 
-func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
-	p.infixParseFns[tokenType] = fn
+func (parser *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	parser.infixParseFns[tokenType] = fn
 }
 
-func New(l *lexer.Lexer) *Parser {
-	p := &Parser{
-		l:      l,
+/*
+Creates a new Parser instance, takes a Lexer instance as input
+*/
+func New(lex *lexer.Lexer) *Parser {
+	// Create a new Parser struct instance
+	parser := &Parser{
+		lexer:  lex,
 		errors: []string{},
 	}
 
-	// Read two tokens, so curToken and peekToken are both set
-	p.nextToken()
-	p.nextToken()
+	/*
+		After the first call to [nextToken()],
+		curToken: 	peekToken = nil,
+		peekToken:  NextToken() = <First Token>
+	*/
+	parser.nextToken()
 
-	return p
+	/*
+		After the second call to [nextToken()],
+		curToken: 	peekToken = <First Token>,
+		peekToken:  NextToken() = <Second Token>
+	*/
+	parser.nextToken()
+
+	return parser
 }
 
-func (p *Parser) Errors() []string {
-	return p.errors
+/*
+Returns the list of errors
+*/
+func (parser *Parser) Errors() []string {
+	return parser.errors
 }
 
-func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
-	p.errors = append(p.errors, msg)
+/*
+Function adds a peekError to the list of errors, if the next token is not of the expected type
+*/
+func (parser *Parser) peekError(t token.TokenType) {
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, parser.peekToken.Type)
+	parser.errors = append(parser.errors, msg)
 }
 
-func (p *Parser) nextToken() {
-	p.curToken = p.peekToken
-	p.peekToken = p.l.NextToken()
+/*
+Function to get the next token from the lexer.
+Sets the currentToken to the peekToken and updates the peekToken to the next token from the lexer.
+*/
+func (parser *Parser) nextToken() {
+	parser.curToken = parser.peekToken
+	parser.peekToken = parser.lexer.NextToken()
 }
 
-func (p *Parser) ParseProgram() *ast.Program {
+/*
+Function to parse the program
+*/
+func (parser *Parser) ParseProgram() *ast.Program {
+	// Create a new Program struct instance
 	program := &ast.Program{}
+	// Initialize the list of statements
 	program.Statements = []ast.Statement{}
 
-	for p.curToken.Type != token.EOF {
-		statement := p.parseStatement()
+	for parser.curToken.Type != token.EOF {
+		// Parse each statement
+		statement := parser.parseStatement()
+
 		if statement != nil {
+			// Add the statement to the list of statements
 			program.Statements = append(program.Statements, statement)
 		}
-		p.nextToken()
+
+		// Get the next token
+		parser.nextToken()
 	}
 	return program
 }
 
-func (p *Parser) parseStatement() ast.Statement {
-	switch p.curToken.Type {
+/*
+Program contains a list of statements.
+[ParseProgram()] calls [parseStatement()] to parse each statement.
+*/
+func (parser *Parser) parseStatement() ast.Statement {
+
+	/*
+		Every statement starts with a keyword. The keyword is the token type.
+		This requires parsing of each statement to be different.
+	*/
+	switch parser.curToken.Type {
+	// Parse variable statements
 	case token.VAR:
-		return p.parseVarStatement()
+		return parser.parseVarStatement()
+
+	// Parse return statements
 	case token.RETURN:
-		return p.parseReturnStatement()
+		return parser.parseReturnStatement()
 	default:
 		return nil
 	}
 }
 
-func (p *Parser) parseVarStatement() *ast.VarStatement {
-	statement := &ast.VarStatement{Token: p.curToken}
+/*
+Function parses the variable statements.
+*/
+func (parser *Parser) parseVarStatement() *ast.VarStatement {
 
-	if !p.expectPeek(token.IDENT) {
+	// Create a new VarStatement struct instance, set the token to the current token
+	statement := &ast.VarStatement{Token: parser.curToken}
+
+	// Check if the next token is an identifier
+	// return nil if the next token is not an identifier
+	// TODO: Return an error instead of nil
+	if !parser.expectPeek(token.IDENT) {
 		return nil
 	}
 
-	statement.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	/*
+		Create a new Identifier struct instance,
+		set the token to the current token and the value to the literal value of the current token
+		Update the Name field of the VarStatement struct instance
+	*/
+	statement.Name = &ast.Identifier{Token: parser.curToken, Value: parser.curToken.Literal}
 
-	if !p.expectPeek(token.ASSIGN) {
+	// Check if the next token is an assignment operator
+	// return nil if the next token is not an assignment operator
+	// TODO: Return an error instead of nil
+	if !parser.expectPeek(token.ASSIGN) {
 		return nil
 	}
 
 	// TODO: skipping the expressions until semicolon is encountered
-	for !p.curTokenIs(token.SEMICOLON) {
-		p.nextToken()
+	for !parser.curTokenIs(token.SEMICOLON) {
+		parser.nextToken()
 	}
 
 	return statement
 }
 
-func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
-	statement := &ast.ReturnStatement{Token: p.curToken}
+/*
+Function parses the return statements.
+*/
+func (parser *Parser) parseReturnStatement() *ast.ReturnStatement {
+	/*
+		Create a new ReturnStatement struct instance,
+		set the token to the current token
+	*/
+	statement := &ast.ReturnStatement{Token: parser.curToken}
 
-	p.nextToken()
+	// Get next token
+	parser.nextToken()
 
 	// TODO: skipping the expressions until semicolon is encountered
-	for !p.curTokenIs(token.SEMICOLON) {
-		p.nextToken()
+	for !parser.curTokenIs(token.SEMICOLON) {
+		parser.nextToken()
 	}
 
 	return statement
 }
 
-func (p *Parser) curTokenIs(t token.TokenType) bool {
-	return p.curToken.Type == t
+/*
+Function to check if the current token is of the expected type
+*/
+func (parser *Parser) curTokenIs(token token.TokenType) bool {
+	return parser.curToken.Type == token
 }
 
-func (p *Parser) peekTokenIs(t token.TokenType) bool {
-	return p.peekToken.Type == t
+/*
+Function to check if the peek token is of the expected type
+*/
+func (parser *Parser) peekTokenIs(token token.TokenType) bool {
+	return parser.peekToken.Type == token
 }
 
-func (p *Parser) expectPeek(t token.TokenType) bool {
-	if p.peekTokenIs(t) {
-		p.nextToken()
+/*
+Function to update the curToken & peekToken pointer,
+if the next token is of the expected type
+*/
+func (parser *Parser) expectPeek(token token.TokenType) bool {
+	if parser.peekTokenIs(token) {
+		parser.nextToken()
 		return true
 	} else {
-		p.peekError(t)
+		parser.peekError(token)
 		return false
 	}
 }

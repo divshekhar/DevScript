@@ -6,23 +6,40 @@ import (
 	"testing"
 )
 
-func TestVarStatement(t *testing.T) {
+func TestVarStatement(testing *testing.T) {
+
+	// Input string
 	input := `
 	var x = 5;
 	var y = 10;
 	var z = 10000;
 	`
+	// Number of statements in the input string
+	var inputStatementNumber int = 3
 
-	l := lexer.New(input)
-	p := New(l)
+	// lexer instance
+	lex := lexer.New(input)
 
-	program := p.ParseProgram()
-	checkParserErrors(t, p)
+	// creating parser instance that takes lexer instance as input
+	parser := New(lex)
 
-	if len(program.Statements) != 3 {
-		t.Fatalf("program.Statements does not contain 3 statements. got=%d", len(program.Statements))
+	// parse the program
+	program := parser.ParseProgram()
+
+	// check for parsing errors
+	checkParserErrors(testing, parser)
+
+	/*
+		Given input string contain 'n' statements,
+
+		Check if the length of the list of statements is 'n' if not then
+		terminate the test and print the error message
+	*/
+	if len(program.Statements) != inputStatementNumber {
+		testing.Fatalf("program.Statements does not contain 3 statements. got=%d", len(program.Statements))
 	}
 
+	// Expected test results
 	tests := []struct {
 		expectedIdentifier string
 	}{
@@ -31,80 +48,111 @@ func TestVarStatement(t *testing.T) {
 		{"z"},
 	}
 
-	for i, tt := range tests {
+	for i, testResult := range tests {
 		statement := program.Statements[i]
-		if !testVarStatement(t, statement, tt.expectedIdentifier) {
+		if !testVarStatement(testing, statement, testResult.expectedIdentifier) {
 			return
 		}
 	}
 
 }
 
-func TestReturnStatement(t *testing.T) {
+func TestReturnStatement(testing *testing.T) {
+	// Input string
 	input := `
 	return 5;
 	return 10;
 	return 100;
 	`
 
-	l := lexer.New(input)
-	p := New(l)
+	var inputReturnStatements int = 3
 
-	program := p.ParseProgram()
-	checkParserErrors(t, p)
+	// lexer instance
+	lex := lexer.New(input)
+	// creating parser instance that takes lexer instance as input
+	parser := New(lex)
 
-	if len(program.Statements) != 3 {
-		t.Fatalf("program.Statements does not contain 3 statements. got=%d", len(program.Statements))
+	// parse the program
+	program := parser.ParseProgram()
+	// check for parsing errors
+	checkParserErrors(testing, parser)
+
+	// Check if the length of the list of statements is equal to 'inputReturnStatements' or not
+	if len(program.Statements) != inputReturnStatements {
+		testing.Fatalf("program.Statements does not contain %d statements. got=%d", inputReturnStatements, len(program.Statements))
 	}
 
-	for _, stmt := range program.Statements {
-		returnStmt, ok := stmt.(*ast.ReturnStatement)
+	for _, statement := range program.Statements {
+		// get statemet
+		returnStatement, ok := statement.(*ast.ReturnStatement)
+
+		// Check if the statement is of type *ast.ReturnStatement
 		if !ok {
-			t.Errorf("stmt not *ast.ReturnStatement. got=%T", stmt)
+			testing.Errorf("statement not *ast.ReturnStatement. got=%T", statement)
 		}
 
-		if returnStmt.TokenLiteral() != "return" {
-			t.Errorf("returnStmt.TokenLiteral() not 'return', got %q", returnStmt.TokenLiteral())
+		// Check if the token literal is 'return'
+		if returnStatement.TokenLiteral() != "return" {
+			testing.Errorf("returnStmt.TokenLiteral() not 'return', got %q", returnStatement.TokenLiteral())
 		}
 	}
 }
 
-func testVarStatement(t *testing.T, statement ast.Statement, name string) bool {
+/*
+Check if the statement is a variable statement and if the name of the variable is correct
+*/
+func testVarStatement(testing *testing.T, statement ast.Statement, name string) bool {
+	// Check if the statement is a variable statement
 	if statement.TokenLiteral() != "var" {
-		t.Errorf("statement.TokenLiteral not 'var'. got=%q", statement.TokenLiteral())
+		testing.Errorf("statement.TokenLiteral not 'var'. got=%q", statement.TokenLiteral())
 		return false
 	}
 
+	// get the variable statement
 	varStatement, ok := statement.(*ast.VarStatement)
+
+	// Check if the variable statement is of type *ast.VarStatement
 	if !ok {
-		t.Errorf("statement not *ast.VarStatement. got=%T", statement)
+		testing.Errorf("statement not *ast.VarStatement. got=%T", statement)
 		return false
 	}
 
+	// Check if the name of the variable is correct
 	if varStatement.Name.Value != name {
-		t.Errorf("varStatement.Name.Value not %s. got=%s", name, varStatement.Name.Value)
+		testing.Errorf("varStatement.Name.Value not %s. got=%s", name, varStatement.Name.Value)
 		return false
 	}
 
+	// Check if the name of the variable is correct
 	if varStatement.Name.TokenLiteral() != name {
-		t.Errorf("varStatement.Name.TokenLiteral() not %s. got=%s", name, varStatement.Name.TokenLiteral())
+		testing.Errorf("varStatement.Name.TokenLiteral() not %s. got=%s", name, varStatement.Name.TokenLiteral())
 		return false
 	}
 
 	return true
 }
 
-func checkParserErrors(t *testing.T, parser *Parser) {
+/*
+Check if there are any errors in the parser,
+if there are, print the errors and fail the test
+*/
+func checkParserErrors(testing *testing.T, parser *Parser) {
+	// Get the errors list from the parser
 	errors := parser.Errors()
+
+	// If there are no errors, return
 	if len(errors) == 0 {
 		return
 	}
 
-	t.Errorf("parser has %d errors", len(errors))
+	// print the number of errors
+	testing.Errorf("parser has %d errors", len(errors))
 
+	// print the errors
 	for _, msg := range errors {
-		t.Errorf("parser error: %q", msg)
+		testing.Errorf("parser error: %q", msg)
 	}
 
-	t.FailNow()
+	// Fail the test
+	testing.FailNow()
 }
