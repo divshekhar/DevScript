@@ -5,25 +5,41 @@ import (
 	"devscript/token"
 )
 
+/*
+AST is represented in form of nodes
+*/
 type Node interface {
 	TokenLiteral() string
 	String() string
 }
 
+/*
+Statement is a Node that can be executed
+*/
 type Statement interface {
 	Node
 	statementNode()
 }
 
+/*
+Expression is a Node that can be evaluated to a value
+*/
 type Expression interface {
 	Node
 	expressionNode()
 }
 
+/*
+Program contains a list of statements
+*/
 type Program struct {
 	Statements []Statement
 }
 
+/*
+Returns the token literal of the first statement,
+empty string if there are no statements
+*/
 func (p *Program) TokenLiteral() string {
 	if len(p.Statements) > 0 {
 		return p.Statements[0].TokenLiteral()
@@ -32,6 +48,9 @@ func (p *Program) TokenLiteral() string {
 	}
 }
 
+/*
+String reprentation of the program
+*/
 func (p *Program) String() string {
 	var out bytes.Buffer
 
@@ -42,6 +61,10 @@ func (p *Program) String() string {
 	return out.String()
 }
 
+/*
+Var statement is a statement that declares a variable.
+Example: var x = 5;
+*/
 type VarStatement struct {
 	Token token.Token // the token.VAR token
 	Name  *Identifier
@@ -68,8 +91,14 @@ func (vs *VarStatement) String() string {
 	return out.String()
 }
 
+/*
+Identifier is a node that represents
+variable/function name
+*/
 type Identifier struct {
-	Token token.Token // the token.IDENT token
+	// token.IDENT token
+	Token token.Token
+	// value of the identifier (variable/function name)
 	Value string
 }
 
@@ -81,6 +110,10 @@ func (i *Identifier) String() string {
 	return i.Value
 }
 
+/*
+Return statement is a statement that
+returns a expression value from a function
+*/
 type ReturnStatement struct {
 	Token       token.Token
 	ReturnValue Expression
@@ -104,6 +137,9 @@ func (rs *ReturnStatement) String() string {
 	return out.String()
 }
 
+/*
+Expression statement contains an expression
+*/
 type ExpressionStatement struct {
 	Token      token.Token
 	Expression Expression
