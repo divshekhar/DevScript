@@ -107,9 +107,11 @@ func New(lex *lexer.Lexer) *Parser {
 
 	// Initialize the prefixParseFns map
 	parser.prefixParseFns = make(map[token.TokenType]prefixParseFn)
-	// Register the parseIdentifier function for the IDENT token type
+	// Register the prefixParseFn for the token type
 	parser.registerPrefix(token.IDENT, parser.parseIdentifier)
 	parser.registerPrefix(token.INT, parser.parseIntegerLiteral)
+	parser.registerPrefix(token.BANG, parser.parsePrefixExpression)
+	parser.registerPrefix(token.MINUS, parser.parsePrefixExpression)
 
 	return parser
 }
@@ -269,17 +271,38 @@ func (parser *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return statement
 }
 
+func (parser *Parser) noPrefixParseFnError(tokenType token.TokenType) {
+	fmt.Printf("No prefix parse function for %s found", tokenType)
+}
+
 // Function to parse the expressions
 func (parser *Parser) parseExpression(precedence int) ast.Expression {
 	// Get the prefix function for the current token
 	prefix := parser.prefixParseFns[parser.curToken.Type]
 	if prefix == nil {
+		parser.noPrefixParseFnError(parser.curToken.Type)
 		return nil
 	}
 
 	leftExp := prefix()
 
 	return leftExp
+}
+
+// Function to parse the prefix expressions
+func (parser *Parser) parsePrefixExpression() ast.Expression {
+	// Create a new PrefixExpression struct instance, set the token to the current token
+	prefixExpression := &ast.PrefixExpression{
+		Token:    parser.curToken,
+		Operator: parser.curToken.Literal,
+	}
+
+	parser.nextToken()
+
+	// Parse the right expression
+	prefixExpression.Right = parser.parseExpression(PREFIX)
+
+	return prefixExpression
 }
 
 // Function to parse the integer literals
