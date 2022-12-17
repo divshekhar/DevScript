@@ -156,3 +156,51 @@ func TestReturnStatement(testing *testing.T) {
 		}
 	}
 }
+
+func TestIdentifierExpression(testing *testing.T) {
+	// Input string
+	input := "foobar;"
+
+	// Number of statements in the input string
+	inputStatementNumber := 1
+
+	// lexer instance
+	lex := lexer.New(input)
+	// creating parser instance that takes lexer instance as input
+	parser := New(lex)
+
+	// parse the program
+	program := parser.ParseProgram()
+	// check for parsing errors
+	checkParserErrors(testing, parser)
+
+	// Check if the length of the list of statements is equal to 1 or not
+	if len(program.Statements) != inputStatementNumber {
+		testing.Fatalf("program.Statements does not contain %d statements. got=%d", inputStatementNumber, len(program.Statements))
+	}
+
+	// get the first statement
+	statement := program.Statements[0]
+
+	// Check if the statement is of type *ast.ExpressionStatement
+	expressionStatement, ok := statement.(*ast.ExpressionStatement)
+	if !ok {
+		testing.Fatalf("statement not *ast.ExpressionStatement. got=%T", statement)
+	}
+
+	// Check if the expression is of type *ast.Identifier
+	identifier, ok := expressionStatement.Expression.(*ast.Identifier)
+	if !ok {
+		testing.Fatalf("expression not *ast.Identifier. got=%T", expressionStatement.Expression)
+	}
+
+	// Check if the name of the identifier is correct
+	if identifier.Value != "foobar" {
+		testing.Errorf("identifier.Value not %s. got=%s", "foobar", identifier.Value)
+	}
+
+	// Check if the token literal of the identifier is correct
+	if identifier.TokenLiteral() != "foobar" {
+		testing.Errorf("identifier.TokenLiteral not %s. got=%s", "foobar", identifier.TokenLiteral())
+	}
+}

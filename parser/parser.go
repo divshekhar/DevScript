@@ -7,6 +7,17 @@ import (
 	"fmt"
 )
 
+const (
+	_ int = iota
+	LOWEST
+	EQUALS      // ==
+	LESSGREATER // > or <
+	SUM         // +
+	PRODUCT     // *
+	PREFIX      // -X or !X
+	CALL        // myFunction(X)
+)
+
 /*
 Parser struct represents the parser
 */
@@ -93,6 +104,11 @@ func New(lex *lexer.Lexer) *Parser {
 	*/
 	parser.nextToken()
 
+	// Initialize the prefixParseFns map
+	parser.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	// Register the parseIdentifier function for the IDENT token type
+	parser.registerPrefix(token.IDENT, parser.parseIdentifier)
+
 	return parser
 }
 
@@ -162,8 +178,10 @@ func (parser *Parser) parseStatement() ast.Statement {
 	// Parse return statements
 	case token.RETURN:
 		return parser.parseReturnStatement()
+
+	// Parse expression statements (default)
 	default:
-		return nil
+		return parser.parseExpressionStatement()
 	}
 }
 
@@ -221,6 +239,44 @@ func (parser *Parser) parseReturnStatement() *ast.ReturnStatement {
 	}
 
 	return statement
+}
+
+/*
+Function to parse the identifiers.
+*/
+func (parser *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{Token: parser.curToken, Value: parser.curToken.Literal}
+}
+
+/*
+Function to parse the expression statements.
+*/
+func (parser *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	// Create a new ExpressionStatement struct instance, set the token to the current token
+	statement := &ast.ExpressionStatement{Token: parser.curToken}
+
+	// Parse the expression
+	statement.Expression = parser.parseExpression(LOWEST)
+
+	// Check if the next token is a semicolon
+	// return nil if the next token is not a semicolon
+	if parser.peekTokenIs(token.SEMICOLON) {
+		parser.nextToken()
+	}
+
+	return statement
+}
+
+func (parser *Parser) parseExpression(precedence int) ast.Expression {
+	// Get the prefix function for the current token
+	prefix := parser.prefixParseFns[parser.curToken.Type]
+	if prefix == nil {
+		return nil
+	}
+
+	leftExp := prefix()
+
+	return leftExp
 }
 
 /*
