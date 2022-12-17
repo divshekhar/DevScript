@@ -8,6 +8,7 @@ import (
 	"strconv"
 )
 
+// Precedence of operators
 const (
 	_ int = iota
 	LOWEST
@@ -18,6 +19,18 @@ const (
 	PREFIX      // -X or !X
 	CALL        // myFunction(X)
 )
+
+// Map of precedences
+var precedences = map[token.TokenType]int{
+	token.EQ:       EQUALS,
+	token.NOT_EQ:   EQUALS,
+	token.LT:       LESSGREATER,
+	token.GT:       LESSGREATER,
+	token.PLUS:     SUM,
+	token.MINUS:    SUM,
+	token.SLASH:    PRODUCT,
+	token.ASTERISK: PRODUCT,
+}
 
 /*
 Parser struct represents the parser
@@ -112,6 +125,18 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.registerPrefix(token.INT, parser.parseIntegerLiteral)
 	parser.registerPrefix(token.BANG, parser.parsePrefixExpression)
 	parser.registerPrefix(token.MINUS, parser.parsePrefixExpression)
+
+	// Initialize the infixParseFns map
+	parser.infixParseFns = make(map[token.TokenType]infixParseFn)
+	// Register the infixParseFn for the token type
+	parser.registerInfix(token.PLUS, parser.parseInfixExpression)
+	parser.registerInfix(token.MINUS, parser.parseInfixExpression)
+	parser.registerInfix(token.SLASH, parser.parseInfixExpression)
+	parser.registerInfix(token.ASTERISK, parser.parseInfixExpression)
+	parser.registerInfix(token.EQ, parser.parseInfixExpression)
+	parser.registerInfix(token.NOT_EQ, parser.parseInfixExpression)
+	parser.registerInfix(token.LT, parser.parseInfixExpression)
+	parser.registerInfix(token.GT, parser.parseInfixExpression)
 
 	return parser
 }
@@ -286,6 +311,19 @@ func (parser *Parser) parseExpression(precedence int) ast.Expression {
 
 	leftExp := prefix()
 
+	// Check if the next token is not a semicolon and,
+	// precedence of the current token is less than the next token's precedence
+	for !parser.peekTokenIs(token.SEMICOLON) && precedence < parser.peekPrecedence() {
+		// Get the infix function for the next token
+		infix := parser.infixParseFns[parser.peekToken.Type]
+		if infix != nil {
+			parser.nextToken()
+
+			// Parse the infix expression
+			leftExp = infix(leftExp)
+		}
+	}
+
 	return leftExp
 }
 
@@ -303,6 +341,26 @@ func (parser *Parser) parsePrefixExpression() ast.Expression {
 	prefixExpression.Right = parser.parseExpression(PREFIX)
 
 	return prefixExpression
+}
+
+// Function to parse Infix expressions
+func (parser *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	// Create a new InfixExpression struct instance, set the token to the current token
+	infixExpression := &ast.InfixExpression{
+		Token:    parser.curToken,
+		Operator: parser.curToken.Literal,
+		Left:     left,
+	}
+
+	// Get the precedence of the current token
+	precedence := parser.curPrecedence()
+
+	parser.nextToken()
+
+	// Parse the right expression
+	infixExpression.Right = parser.parseExpression(precedence)
+
+	return infixExpression
 }
 
 // Function to parse the integer literals
@@ -324,6 +382,24 @@ func (parser *Parser) parseIntegerLiteral() ast.Expression {
 	integerLiteral.Value = value
 
 	return integerLiteral
+}
+
+// Peek the precedence of the next token
+func (parser *Parser) peekPrecedence() int {
+	if p, ok := precedences[parser.peekToken.Type]; ok {
+		return p
+	}
+
+	return LOWEST
+}
+
+// Get the precedence of the current token
+func (parser *Parser) curPrecedence() int {
+	if p, ok := precedences[parser.curToken.Type]; ok {
+		return p
+	}
+
+	return LOWEST
 }
 
 /*

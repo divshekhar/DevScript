@@ -25,10 +25,14 @@ func testParserPhase() {
 	foobar;
 	func
 	5;
-	10
-	-5
-	!-5
-	!5
+	10;
+	-5;
+	!-5;
+	!5;
+	a + b + c;
+	a + b - c;
+	a + b / c;
+	5 > 4 == 3 < 4;
 	`
 	lex := lexer.New(input)
 	parser := parser.New(lex)

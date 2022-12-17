@@ -188,16 +188,47 @@ type PrefixExpression struct {
 	Right    Expression
 }
 
-func (pe *PrefixExpression) expressionNode() {}
-func (pe *PrefixExpression) TokenLiteral() string {
-	return pe.Token.Literal
+func (prefixExp *PrefixExpression) expressionNode() {}
+func (prefixExp *PrefixExpression) TokenLiteral() string {
+	return prefixExp.Token.Literal
 }
-func (pe *PrefixExpression) String() string {
+func (prefixExp *PrefixExpression) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("(")
-	out.WriteString(pe.Operator)
-	out.WriteString(pe.Right.String())
+	out.WriteString(prefixExp.Operator)
+	out.WriteString(prefixExp.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
+
+// InfixExpression is a node that represents an infix expression
+//
+// Example: 5 + 5, 5 > 5
+type InfixExpression struct {
+	// Infix token
+	//
+	// Example: 5 + 5, 5 > 5
+	//
+	// The token is the + (PLUS) or > (GT) token
+	Token    token.Token
+	Left     Expression
+	Operator string
+	Right    Expression
+}
+
+func (infixExp *InfixExpression) expressionNode() {}
+func (infixExp *InfixExpression) TokenLiteral() string {
+	return infixExp.Token.Literal
+}
+func (infixExp *InfixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(infixExp.Left.String())
+	out.WriteString(" " + infixExp.Operator + " ")
+	out.WriteString(infixExp.Right.String())
 	out.WriteString(")")
 
 	return out.String()
