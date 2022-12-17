@@ -83,9 +83,15 @@ func TestVarStatement(testing *testing.T) {
 
 }
 
-/*
-Check if the statement is a variable statement and if the name of the variable is correct
-*/
+// Test the variable statement
+//
+// Tests:
+//
+// 1. Check if the statement is of type *ast.VarStatement
+//
+// 2. Check if the token literal is 'var'
+//
+// 3. Check if the name of the variable is correct
 func testVarStatement(testing *testing.T, statement ast.Statement, name string) bool {
 	// Check if the statement is a variable statement
 	if statement.TokenLiteral() != "var" {
@@ -108,7 +114,7 @@ func testVarStatement(testing *testing.T, statement ast.Statement, name string) 
 		return false
 	}
 
-	// Check if the name of the variable is correct
+	// Check if the token literal of the variable is correct
 	if varStatement.Name.TokenLiteral() != name {
 		testing.Errorf("varStatement.Name.TokenLiteral() not %s. got=%s", name, varStatement.Name.TokenLiteral())
 		return false
@@ -117,6 +123,13 @@ func testVarStatement(testing *testing.T, statement ast.Statement, name string) 
 	return true
 }
 
+// Test the return statement
+//
+// Tests:
+//
+// 1. Check if the statement is of type *ast.ReturnStatement
+//
+// 2. Check if the token literal is 'return'
 func TestReturnStatement(testing *testing.T) {
 	// Input string
 	input := `
@@ -189,21 +202,7 @@ func TestIdentifierExpression(testing *testing.T) {
 		testing.Fatalf("statement not *ast.ExpressionStatement. got=%T", statement)
 	}
 
-	// Check if the expression is of type *ast.Identifier
-	identifier, ok := expressionStatement.Expression.(*ast.Identifier)
-	if !ok {
-		testing.Fatalf("expression not *ast.Identifier. got=%T", expressionStatement.Expression)
-	}
-
-	// Check if the name of the identifier is correct
-	if identifier.Value != "foobar" {
-		testing.Errorf("identifier.Value not %s. got=%s", "foobar", identifier.Value)
-	}
-
-	// Check if the token literal of the identifier is correct
-	if identifier.TokenLiteral() != "foobar" {
-		testing.Errorf("identifier.TokenLiteral not %s. got=%s", "foobar", identifier.TokenLiteral())
-	}
+	testIdentifier(testing, expressionStatement.Expression, "foobar")
 }
 
 // Function to test the parsing of integer literals
@@ -239,21 +238,7 @@ func TestIntegerLiteralExpression(testing *testing.T) {
 		testing.Fatalf("statement not *ast.ExpressionStatement. got=%T", statement)
 	}
 
-	// Check if the expression is of type *ast.IntegerLiteral
-	integerLiteral, ok := expressionStatement.Expression.(*ast.IntegerLiteral)
-	if !ok {
-		testing.Fatalf("expression not *ast.IntegerLiteral. got=%T", expressionStatement.Expression)
-	}
-
-	// Check if the value of the integer literal is correct
-	if integerLiteral.Value != 5 {
-		testing.Errorf("integerLiteral.Value not %d. got=%d", 5, integerLiteral.Value)
-	}
-
-	// Check if the token literal of the integer literal is correct
-	if integerLiteral.TokenLiteral() != "5" {
-		testing.Errorf("integerLiteral.TokenLiteral not %s. got=%s", "5", integerLiteral.TokenLiteral())
-	}
+	testIntegerLiteral(testing, expressionStatement.Expression, 5)
 }
 
 func TestParsingPrefixExpressions(t *testing.T) {
@@ -301,26 +286,6 @@ func TestParsingPrefixExpressions(t *testing.T) {
 	}
 }
 
-func testIntegerLiteral(t *testing.T, integerLiteral ast.Expression, value int64) bool {
-	integer, ok := integerLiteral.(*ast.IntegerLiteral)
-	if !ok {
-		t.Errorf("integerLiteral not *ast.IntegerLiteral. got=%T", integerLiteral)
-		return false
-	}
-
-	if integer.Value != value {
-		t.Errorf("integer.Value not %d. got=%d", value, integer.Value)
-		return false
-	}
-
-	if integer.TokenLiteral() != fmt.Sprintf("%d", value) {
-		t.Errorf("integer.TokenLiteral not %d. got=%s", value, integer.TokenLiteral())
-		return false
-	}
-
-	return true
-}
-
 // Function to test the parsing of infix expressions
 func TestParsingInfixExpressions(t *testing.T) {
 	infixTests := []struct {
@@ -355,26 +320,122 @@ func TestParsingInfixExpressions(t *testing.T) {
 			t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
 		}
 
-		infixExp, ok := statement.Expression.(*ast.InfixExpression)
-		if !ok {
-			t.Fatalf("statement.Expression is not ast.InfixExpression. got=%T", statement.Expression)
-		}
-
-		// check if the left value is correct
-		if !testIntegerLiteral(t, infixExp.Left, int64(infixTest.leftVal)) {
-			return
-		}
-
-		// check if the operator is correct
-		if infixExp.Operator != infixTest.operator {
-			t.Fatalf("infixExp.Operator is not '%s'. got=%s", infixTest.operator, infixExp.Operator)
-		}
-
-		// check if the right value is correct
-		if !testIntegerLiteral(t, infixExp.Right, int64(infixTest.rightVal)) {
-			return
-		}
+		testInfixExpression(t, statement.Expression, infixTest.leftVal, infixTest.operator, infixTest.rightVal)
 	}
+}
+
+// Function to test infix expressions
+//
+// Tests:
+//
+// 1. Check if the expression is of type *ast.InfixExpression
+//
+// 2. Check if the left value is correct
+//
+// 3. Check if the operator is correct
+//
+// 4. Check if the right value is correct
+func testInfixExpression(testing *testing.T, expression ast.Expression, left interface{}, operator string, right interface{}) bool {
+	infixExpression, ok := expression.(*ast.InfixExpression)
+
+	// Check if the expression is of type *ast.InfixExpression
+	if !ok {
+		testing.Errorf("expression is not ast.InfixExpression. got=%T(%s)", expression, expression)
+		return false
+	}
+
+	// Check if the left value is correct
+	if !testLiteralExpression(testing, infixExpression.Left, left) {
+		return false
+	}
+
+	// Check if the operator is correct
+	if infixExpression.Operator != operator {
+		testing.Errorf("expression.Operator is not '%s'. got=%s", operator, infixExpression.Operator)
+		return false
+	}
+
+	// Check if the right value is correct
+	if !testLiteralExpression(testing, infixExpression.Right, right) {
+		return false
+	}
+
+	return true
+}
+
+// Function to test literal expressions
+//
+// Tests IntegerLiteral and Identifier
+func testLiteralExpression(testing *testing.T, expression ast.Expression, expected interface{}) bool {
+	switch value := expected.(type) {
+	case int:
+		return testIntegerLiteral(testing, expression, int64(value))
+	case int64:
+		return testIntegerLiteral(testing, expression, value)
+	case string:
+		return testIdentifier(testing, expression, value)
+	}
+	testing.Errorf("type of expression not handled, got=%T", expression)
+	return false
+}
+
+// Function to test integer literals
+//
+// Tests:
+//
+// 1. Check if the expression is of type *ast.IntegerLiteral
+//
+// 2. Check if the value is correct
+//
+// 3. Check if the token literal is correct
+func testIntegerLiteral(t *testing.T, expression ast.Expression, value int64) bool {
+	integer, ok := expression.(*ast.IntegerLiteral)
+	if !ok {
+		t.Errorf("integerLiteral not *ast.IntegerLiteral. got=%T", expression)
+		return false
+	}
+
+	if integer.Value != value {
+		t.Errorf("integer.Value not %d. got=%d", value, integer.Value)
+		return false
+	}
+
+	if integer.TokenLiteral() != fmt.Sprintf("%d", value) {
+		t.Errorf("integer.TokenLiteral not %d. got=%s", value, integer.TokenLiteral())
+		return false
+	}
+
+	return true
+}
+
+// Function to test identifiers
+//
+// Tests:
+//
+// 1. Check if the expression is of type *ast.Identifier
+//
+// 2. Check if the value is correct
+//
+// 3. Check if the token literal is correct
+func testIdentifier(t *testing.T, expression ast.Expression, value string) bool {
+	identifier, ok := expression.(*ast.Identifier)
+	if !ok {
+		t.Errorf("expression not *ast.Identifier. got=%T", expression)
+		return false
+	}
+
+	if identifier.Value != value {
+		t.Errorf("identifier.Value not %s. got=%s", value, identifier.Value)
+		return false
+	}
+
+	if identifier.TokenLiteral() != value {
+		t.Errorf("identifier.TokenLiteral not %s. got=%s", value, identifier.TokenLiteral())
+		return false
+	}
+
+	return true
+
 }
 
 // Function to test operator precedence parsing

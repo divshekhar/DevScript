@@ -303,28 +303,36 @@ func (parser *Parser) noPrefixParseFnError(tokenType token.TokenType) {
 // Function to parse the expressions
 func (parser *Parser) parseExpression(precedence int) ast.Expression {
 	// Get the prefix function for the current token
+	// Example:
+	// for the token "5", the prefix function is "parseIntegerLiteral"
+	// for the token "foo", the prefix function is "parseIdentifier"
+	// for the token "-" (minus) / "!" (bang), the prefix function is "parsePrefixExpression"
 	prefix := parser.prefixParseFns[parser.curToken.Type]
 	if prefix == nil {
 		parser.noPrefixParseFnError(parser.curToken.Type)
 		return nil
 	}
 
-	leftExp := prefix()
+	// exp is the left expression of the infix expression
+	exp := prefix()
 
 	// Check if the next token is not a semicolon and,
 	// precedence of the current token is less than the next token's precedence
 	for !parser.peekTokenIs(token.SEMICOLON) && precedence < parser.peekPrecedence() {
 		// Get the infix function for the next token
 		infix := parser.infixParseFns[parser.peekToken.Type]
-		if infix != nil {
-			parser.nextToken()
-
-			// Parse the infix expression
-			leftExp = infix(leftExp)
+		if infix == nil {
+			return exp
 		}
+
+		parser.nextToken()
+
+		// Parse the infix expression
+		// calls parseInfixExpression() that takes the left expression as an argument
+		exp = infix(exp)
 	}
 
-	return leftExp
+	return exp
 }
 
 // Function to parse the prefix expressions
@@ -335,9 +343,10 @@ func (parser *Parser) parsePrefixExpression() ast.Expression {
 		Operator: parser.curToken.Literal,
 	}
 
+	// Advance to the next token
 	parser.nextToken()
 
-	// Parse the right expression
+	// Initialize the Right field of the PrefixExpression struct instance, with precedence of PREFIX
 	prefixExpression.Right = parser.parseExpression(PREFIX)
 
 	return prefixExpression
@@ -355,9 +364,10 @@ func (parser *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	// Get the precedence of the current token
 	precedence := parser.curPrecedence()
 
+	// Advance to the next token
 	parser.nextToken()
 
-	// Parse the right expression
+	// Initialize the Right field of the InfixExpression struct instance, with precedence of the current token
 	infixExpression.Right = parser.parseExpression(precedence)
 
 	return infixExpression
