@@ -2,6 +2,7 @@ package repl
 
 import (
 	"bufio"
+	"devscript/ast"
 	"devscript/lexer"
 	"devscript/parser"
 	"devscript/token"
@@ -23,26 +24,39 @@ func Start(in io.Reader, out io.Writer) {
 
 		line := scanner.Text()
 
-		// lexer instance
-		var lex = lexer.New(line)
+		lexerPhase(line)
+		parsePhase(line)
+	}
+}
 
-		fmt.Println("------LEXER OUTPUT-------")
-		for tok := lex.NextToken(); tok.Type != token.EOF; tok = lex.NextToken() {
-			fmt.Printf("%+v\n", tok)
-		}
-		fmt.Println()
+func lexerPhase(line string) {
+	// lexer instance
+	lex := lexer.New(line)
 
-		// lexer instance
-		lex = lexer.New(line)
-		// parser instance
-		parser := parser.New(lex)
-		// parse the program
-		program := parser.ParseProgram()
+	fmt.Println("------LEXER OUTPUT-------")
+	for tok := lex.NextToken(); tok.Type != token.EOF; tok = lex.NextToken() {
+		fmt.Printf("%+v\n", tok)
+	}
+	fmt.Println()
+}
 
-		fmt.Println("------PARSER OUTPUT-------")
-		fmt.Printf("Number of statements after parsing: %d\n", len(program.Statements))
-		for _, statement := range program.Statements {
-			fmt.Printf("%+v\t\t%T\n", statement, statement)
+func parsePhase(line string) {
+	// lexer instance
+	lex := lexer.New(line)
+	// parser instance
+	parser := parser.New(lex)
+	// parse the program
+	program := parser.ParseProgram()
+
+	fmt.Println("------PARSER OUTPUT-------")
+	fmt.Printf("Number of statements after parsing: %d\n", len(program.Statements))
+	for _, statement := range program.Statements {
+		fmt.Printf("%+v\t\t%T", statement, statement)
+
+		// check if type of statement is *ast.ExpressionStatement
+		expressionStatement, ok := statement.(*ast.ExpressionStatement)
+		if ok {
+			fmt.Printf(" -> %T\n", expressionStatement.Expression)
 		}
 	}
 }
