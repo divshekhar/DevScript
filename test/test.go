@@ -1,6 +1,7 @@
 package main
 
 import (
+	"devscript/ast"
 	"devscript/lexer"
 	"devscript/parser"
 	"devscript/token"
@@ -30,7 +31,15 @@ func testParserPhase() {
 	fmt.Println("------PARSER OUTPUT-------")
 	fmt.Printf("Number of statements after parsing: %d\n", len(program.Statements))
 	for _, statement := range program.Statements {
-		fmt.Printf("%+v\t%T\n", statement, statement)
+		fmt.Printf("%+v\t\t%T", statement, statement)
+
+		// check if type of statement is *ast.ExpressionStatement
+		expressionStatement, ok := statement.(*ast.ExpressionStatement)
+		if ok {
+			fmt.Printf(" -> %T\n", expressionStatement.Expression)
+		} else {
+			fmt.Println()
+		}
 	}
 }
 
