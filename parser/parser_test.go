@@ -6,6 +6,31 @@ import (
 	"testing"
 )
 
+/*
+Check if there are any errors in the parser,
+if there are, print the errors and fail the test
+*/
+func checkParserErrors(testing *testing.T, parser *Parser) {
+	// Get the errors list from the parser
+	errors := parser.Errors()
+
+	// If there are no errors, return
+	if len(errors) == 0 {
+		return
+	}
+
+	// print the number of errors
+	testing.Errorf("parser has %d errors", len(errors))
+
+	// print the errors
+	for _, msg := range errors {
+		testing.Errorf("parser error: %q", msg)
+	}
+
+	// Fail the test
+	testing.FailNow()
+}
+
 func TestVarStatement(testing *testing.T) {
 
 	// Input string
@@ -57,6 +82,40 @@ func TestVarStatement(testing *testing.T) {
 
 }
 
+/*
+Check if the statement is a variable statement and if the name of the variable is correct
+*/
+func testVarStatement(testing *testing.T, statement ast.Statement, name string) bool {
+	// Check if the statement is a variable statement
+	if statement.TokenLiteral() != "var" {
+		testing.Errorf("statement.TokenLiteral not 'var'. got=%q", statement.TokenLiteral())
+		return false
+	}
+
+	// get the variable statement
+	varStatement, ok := statement.(*ast.VarStatement)
+
+	// Check if the variable statement is of type *ast.VarStatement
+	if !ok {
+		testing.Errorf("statement not *ast.VarStatement. got=%T", statement)
+		return false
+	}
+
+	// Check if the name of the variable is correct
+	if varStatement.Name.Value != name {
+		testing.Errorf("varStatement.Name.Value not %s. got=%s", name, varStatement.Name.Value)
+		return false
+	}
+
+	// Check if the name of the variable is correct
+	if varStatement.Name.TokenLiteral() != name {
+		testing.Errorf("varStatement.Name.TokenLiteral() not %s. got=%s", name, varStatement.Name.TokenLiteral())
+		return false
+	}
+
+	return true
+}
+
 func TestReturnStatement(testing *testing.T) {
 	// Input string
 	input := `
@@ -96,63 +155,4 @@ func TestReturnStatement(testing *testing.T) {
 			testing.Errorf("returnStmt.TokenLiteral() not 'return', got %q", returnStatement.TokenLiteral())
 		}
 	}
-}
-
-/*
-Check if the statement is a variable statement and if the name of the variable is correct
-*/
-func testVarStatement(testing *testing.T, statement ast.Statement, name string) bool {
-	// Check if the statement is a variable statement
-	if statement.TokenLiteral() != "var" {
-		testing.Errorf("statement.TokenLiteral not 'var'. got=%q", statement.TokenLiteral())
-		return false
-	}
-
-	// get the variable statement
-	varStatement, ok := statement.(*ast.VarStatement)
-
-	// Check if the variable statement is of type *ast.VarStatement
-	if !ok {
-		testing.Errorf("statement not *ast.VarStatement. got=%T", statement)
-		return false
-	}
-
-	// Check if the name of the variable is correct
-	if varStatement.Name.Value != name {
-		testing.Errorf("varStatement.Name.Value not %s. got=%s", name, varStatement.Name.Value)
-		return false
-	}
-
-	// Check if the name of the variable is correct
-	if varStatement.Name.TokenLiteral() != name {
-		testing.Errorf("varStatement.Name.TokenLiteral() not %s. got=%s", name, varStatement.Name.TokenLiteral())
-		return false
-	}
-
-	return true
-}
-
-/*
-Check if there are any errors in the parser,
-if there are, print the errors and fail the test
-*/
-func checkParserErrors(testing *testing.T, parser *Parser) {
-	// Get the errors list from the parser
-	errors := parser.Errors()
-
-	// If there are no errors, return
-	if len(errors) == 0 {
-		return
-	}
-
-	// print the number of errors
-	testing.Errorf("parser has %d errors", len(errors))
-
-	// print the errors
-	for _, msg := range errors {
-		testing.Errorf("parser error: %q", msg)
-	}
-
-	// Fail the test
-	testing.FailNow()
 }
