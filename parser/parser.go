@@ -5,6 +5,7 @@ import (
 	"devscript/lexer"
 	"devscript/token"
 	"fmt"
+	"strconv"
 )
 
 const (
@@ -108,6 +109,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	// Register the parseIdentifier function for the IDENT token type
 	parser.registerPrefix(token.IDENT, parser.parseIdentifier)
+	parser.registerPrefix(token.INT, parser.parseIntegerLiteral)
 
 	return parser
 }
@@ -267,6 +269,7 @@ func (parser *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return statement
 }
 
+// Function to parse the expressions
 func (parser *Parser) parseExpression(precedence int) ast.Expression {
 	// Get the prefix function for the current token
 	prefix := parser.prefixParseFns[parser.curToken.Type]
@@ -277,6 +280,27 @@ func (parser *Parser) parseExpression(precedence int) ast.Expression {
 	leftExp := prefix()
 
 	return leftExp
+}
+
+// Function to parse the integer literals
+//
+// Eg: 5; 10 + 15;
+func (parser *Parser) parseIntegerLiteral() ast.Expression {
+	// Create a new IntegerLiteral struct instance, set the token to the current token
+	integerLiteral := &ast.IntegerLiteral{Token: parser.curToken}
+
+	// Convert the literal value from string to int64
+	value, err := strconv.ParseInt(parser.curToken.Literal, 0, 64)
+	if err != nil {
+		msg := fmt.Sprintf("Could not parse %q as integer", parser.curToken.Literal)
+		parser.errors = append(parser.errors, msg)
+		return nil
+	}
+
+	// Update the Value field of the IntegerLiteral struct instance
+	integerLiteral.Value = value
+
+	return integerLiteral
 }
 
 /*

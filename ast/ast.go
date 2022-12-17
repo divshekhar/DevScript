@@ -156,3 +156,23 @@ func (es *ExpressionStatement) String() string {
 
 	return ""
 }
+
+// IntegerLiteral is a node that represents an integer value
+type IntegerLiteral struct {
+	// token.INT token
+	Token token.Token
+	// value of the integer
+	Value int64
+}
+
+func (il *IntegerLiteral) expressionNode() {}
+
+// returns the token literal of the integer literal
+func (il *IntegerLiteral) TokenLiteral() string {
+	return il.Token.Literal
+}
+
+// string representation of the integer literal
+func (il *IntegerLiteral) String() string {
+	return il.Token.Literal
+}
