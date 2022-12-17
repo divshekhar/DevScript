@@ -21,9 +21,14 @@ func testParserPhase() {
 	input := `
 	var x = 5;
 	var y = 10;
-	var z = 10000;
+	var z = 10000
 	foobar;
 	func
+	5;
+	10
+	-5
+	!-5
+	!5
 	`
 	lex := lexer.New(input)
 	parser := parser.New(lex)
