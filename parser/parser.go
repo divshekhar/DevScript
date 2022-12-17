@@ -22,19 +22,49 @@ type Parser struct {
 	// List of errors
 	errors []string
 
+	/*
+		Map of prefixParseFn functions
+		Each function is associated with a token type
+		Eg. prefixParseFns = {ADD: parsePrefixFunction, SUB: parsePrefixFunction, ...}
+	*/
 	prefixParseFns map[token.TokenType]prefixParseFn
-	infixParseFns  map[token.TokenType]infixParseFn
+
+	/*
+		Map of infixParseFn functions
+		Each function is associated with a token type
+		Eg. infixParseFns = {ADD: parseInfixFunction, SUB: parseInfixFunction, ...}
+	*/
+	infixParseFns map[token.TokenType]infixParseFn
 }
 
 type (
+	/*
+		Function to parse a prefix expression.
+		Eg: -5, !true, -true, !false, -false
+		Returns an ast.Expression
+	*/
 	prefixParseFn func() ast.Expression
-	infixParseFn  func(ast.Expression) ast.Expression
+
+	/*
+		Function to parse a infix expression
+		Eg: 5 + 5, 5 / 5, 5 > 5, 5 == 5, 5 != 5
+		Returns an ast.Expression
+	*/
+	infixParseFn func(ast.Expression) ast.Expression
 )
 
+/*
+Register a prefixParseFn function for a token type.
+Updates the prefixParseFns map.
+*/
 func (parser *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 	parser.prefixParseFns[tokenType] = fn
 }
 
+/*
+Register a infixParseFn function for a token type.
+Updates the infixParseFns map.
+*/
 func (parser *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	parser.infixParseFns[tokenType] = fn
 }
@@ -76,8 +106,8 @@ func (parser *Parser) Errors() []string {
 /*
 Function adds a peekError to the list of errors, if the next token is not of the expected type
 */
-func (parser *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, parser.peekToken.Type)
+func (parser *Parser) peekError(nextToken token.TokenType) {
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead", nextToken, parser.peekToken.Type)
 	parser.errors = append(parser.errors, msg)
 }
 
@@ -147,7 +177,6 @@ func (parser *Parser) parseVarStatement() *ast.VarStatement {
 
 	// Check if the next token is an identifier
 	// return nil if the next token is not an identifier
-	// TODO: Return an error instead of nil
 	if !parser.expectPeek(token.IDENT) {
 		return nil
 	}
@@ -161,7 +190,6 @@ func (parser *Parser) parseVarStatement() *ast.VarStatement {
 
 	// Check if the next token is an assignment operator
 	// return nil if the next token is not an assignment operator
-	// TODO: Return an error instead of nil
 	if !parser.expectPeek(token.ASSIGN) {
 		return nil
 	}
@@ -211,13 +239,17 @@ func (parser *Parser) peekTokenIs(token token.TokenType) bool {
 
 /*
 Function to update the curToken & peekToken pointer,
-if the next token is of the expected type
+if the next token is of the expected type.
+
+Add error to the list of errors,
+when the next token is not of the expected type.
 */
 func (parser *Parser) expectPeek(token token.TokenType) bool {
 	if parser.peekTokenIs(token) {
 		parser.nextToken()
 		return true
 	} else {
+		// Add error to the list of errors
 		parser.peekError(token)
 		return false
 	}
