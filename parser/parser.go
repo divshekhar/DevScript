@@ -70,6 +70,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.registerPrefix(token.MINUS, parser.parsePrefixExpression)
 	parser.registerPrefix(token.TRUE, parser.parseBoolean)
 	parser.registerPrefix(token.FALSE, parser.parseBoolean)
+	parser.registerPrefix(token.LPAREN, parser.parseGroupedExpression)
 
 	// Initialize the infixParseFns map
 	parser.infixParseFns = make(map[token.TokenType]infixParseFn)
