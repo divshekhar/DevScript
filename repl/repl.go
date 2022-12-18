@@ -2,6 +2,7 @@ package repl
 
 import (
 	"bufio"
+	"devscript/eval"
 	"devscript/lexer"
 	"devscript/parser"
 	"fmt"
@@ -30,8 +31,11 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		io.WriteString(out, program.String())
-		io.WriteString(out, "\n")
+		evaluatedResult := eval.Eval(program)
+		if evaluatedResult != nil {
+			io.WriteString(out, evaluatedResult.Inspect())
+			io.WriteString(out, "\n")
+		}
 	}
 }
 
