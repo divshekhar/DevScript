@@ -33,6 +33,14 @@ func testParserPhase() {
 	a + b - c;
 	a + b / c;
 	5 > 4 == 3 < 4;
+	true;
+	true == true;
+	false == false;
+	true != false;
+	10 < 1 != true;
+	10 > 1 == true;
+	10 == 10 == true;
+	10 != 10 != false;
 	`
 	lex := lexer.New(input)
 	parser := parser.New(lex)
