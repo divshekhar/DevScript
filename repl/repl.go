@@ -2,10 +2,8 @@ package repl
 
 import (
 	"bufio"
-	"devscript/ast"
 	"devscript/lexer"
 	"devscript/parser"
-	"devscript/token"
 	"fmt"
 	"io"
 )
@@ -23,40 +21,24 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		line := scanner.Text()
+		lex := lexer.New(line)
+		parser := parser.New(lex)
 
-		lexerPhase(line)
-		parsePhase(line)
-	}
-}
-
-func lexerPhase(line string) {
-	// lexer instance
-	lex := lexer.New(line)
-
-	fmt.Println("------LEXER OUTPUT-------")
-	for tok := lex.NextToken(); tok.Type != token.EOF; tok = lex.NextToken() {
-		fmt.Printf("%+v\n", tok)
-	}
-	fmt.Println()
-}
-
-func parsePhase(line string) {
-	// lexer instance
-	lex := lexer.New(line)
-	// parser instance
-	parser := parser.New(lex)
-	// parse the program
-	program := parser.ParseProgram()
-
-	fmt.Println("------PARSER OUTPUT-------")
-	fmt.Printf("Number of statements after parsing: %d\n", len(program.Statements))
-	for _, statement := range program.Statements {
-		fmt.Printf("%+v\t\t%T", statement, statement)
-
-		// check if type of statement is *ast.ExpressionStatement
-		expressionStatement, ok := statement.(*ast.ExpressionStatement)
-		if ok {
-			fmt.Printf(" -> %T\n", expressionStatement.Expression)
+		program := parser.ParseProgram()
+		if len(parser.Errors()) != 0 {
+			printParseErrors(out, parser.Errors())
+			continue
 		}
+
+		io.WriteString(out, program.String())
+		io.WriteString(out, "\n")
+	}
+}
+
+func printParseErrors(out io.Writer, errors []string) {
+	io.WriteString(out, "Oh you found out an error!!! \n")
+	io.WriteString(out, "Parser errors: \n")
+	for _, msg := range errors {
+		io.WriteString(out, "\t"+msg+"\n")
 	}
 }
