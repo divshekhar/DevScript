@@ -58,7 +58,13 @@ func (parser *Parser) parseVarStatement() *ast.VarStatement {
 		return nil
 	}
 
-	// TODO: skipping the expressions until semicolon is encountered
+	// Advance the current token to the next token
+	parser.nextToken()
+
+	// Parse the expression
+	statement.Value = parser.parseExpression(LOWEST)
+
+	// Check if the next token is a semicolon
 	for !parser.curTokenIs(token.SEMICOLON) {
 		parser.nextToken()
 	}
@@ -82,7 +88,10 @@ func (parser *Parser) parseReturnStatement() *ast.ReturnStatement {
 	// Get next token
 	parser.nextToken()
 
-	// TODO: skipping the expressions until semicolon is encountered
+	// Parse the expression
+	statement.ReturnValue = parser.parseExpression(LOWEST)
+
+	// Check if the next token is a semicolon
 	for !parser.curTokenIs(token.SEMICOLON) {
 		parser.nextToken()
 	}
