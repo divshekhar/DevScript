@@ -125,6 +125,8 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.registerPrefix(token.INT, parser.parseIntegerLiteral)
 	parser.registerPrefix(token.BANG, parser.parsePrefixExpression)
 	parser.registerPrefix(token.MINUS, parser.parsePrefixExpression)
+	parser.registerPrefix(token.TRUE, parser.parseBoolean)
+	parser.registerPrefix(token.FALSE, parser.parseBoolean)
 
 	// Initialize the infixParseFns map
 	parser.infixParseFns = make(map[token.TokenType]infixParseFn)
@@ -296,8 +298,17 @@ func (parser *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return statement
 }
 
+// Function to return error if there is no prefix parse function for the current token
+//
+// Example:
+//
+// for the token "5", the prefix function is "parseIntegerLiteral"
+//
+// for the token "foo", the prefix function is "parseIdentifier"
+//
+// for the token "-" (minus) / "!" (bang), the prefix function is "parsePrefixExpression"
 func (parser *Parser) noPrefixParseFnError(tokenType token.TokenType) {
-	fmt.Printf("No prefix parse function for %s found", tokenType)
+	fmt.Printf("No prefix parse function for %s found\n", tokenType)
 }
 
 // Function to parse the expressions
@@ -392,6 +403,13 @@ func (parser *Parser) parseIntegerLiteral() ast.Expression {
 	integerLiteral.Value = value
 
 	return integerLiteral
+}
+
+func (parser *Parser) parseBoolean() ast.Expression {
+	return &ast.Boolean{
+		Token: parser.curToken,
+		Value: parser.curTokenIs(token.TRUE),
+	}
 }
 
 // Peek the precedence of the next token
