@@ -114,3 +114,33 @@ func (parser *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 
 	return statement
 }
+
+// Function to parse the block statements.
+//
+// Block statements are statements that start with a LBRACE token and end with a RBRACE token.
+//
+//	{
+//		5;
+//		var x = 5;
+//	}
+func (parser *Parser) parseBlockStatement() *ast.BlockStatement {
+	// Create a new BlockStatement struct instance, set the token to the current token
+	block := &ast.BlockStatement{Token: parser.curToken}
+
+	// Set the statements field to an empty slice
+	block.Statements = []ast.Statement{}
+
+	// Advance the current token to the next token
+	parser.nextToken()
+
+	// Parse the statements until the next token is a RBRACE token
+	for !parser.curTokenIs(token.RBRACE) {
+		statement := parser.parseStatement()
+		if statement != nil {
+			block.Statements = append(block.Statements, statement)
+		}
+		parser.nextToken()
+	}
+
+	return block
+}
