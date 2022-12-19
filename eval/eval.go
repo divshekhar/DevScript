@@ -34,9 +34,13 @@ func Eval(node ast.Node) object.Object {
 		left := Eval(node.Left)
 		right := Eval(node.Right)
 		return evalInfixExpression(node.Operator, left, right)
+	case *ast.BlockStatement:
+		return evalStatements(node.Statements)
+	case *ast.IfExpression:
+		return evalIfExpression(node)
+	default:
+		return NULL
 	}
-
-	return NULL
 }
 
 // nativeBoolToBooleanObject converts a native bool to a Boolean object
