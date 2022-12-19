@@ -82,11 +82,37 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	case ">":
 		return nativeBoolToBooleanObject(leftVal > rightVal)
 	case "==":
-		return nativeBoolToBooleanObject(leftVal == rightVal)
+		return evalEqualToExpression(left, right)
 	case "!=":
 		return nativeBoolToBooleanObject(leftVal != rightVal)
 	default:
 		return NULL
+	}
+}
+
+// convert integer 0 to Boolean false value,
+// and all other integers Boolean true value
+func convertIntegerToBoolean(obj object.Object) object.Object {
+	if obj == ZERO {
+		return FALSE
+	}
+
+	return TRUE
+}
+
+// evaluates an equal to expression
+func evalEqualToExpression(left, right object.Object) object.Object {
+	switch {
+	// If left and right are null
+	case left == NULL && right == NULL:
+		return TRUE
+	// If left is null and right is not
+	case left == NULL:
+		return FALSE
+	default:
+		leftVal := left.(*object.Integer).Value
+		rightVal := right.(*object.Integer).Value
+		return nativeBoolToBooleanObject(leftVal == rightVal)
 	}
 }
 
