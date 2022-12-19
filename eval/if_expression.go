@@ -5,16 +5,16 @@ import (
 	"devscript/object"
 )
 
-func evalIfExpression(ifExpression *ast.IfExpression) object.Object {
-	condition := Eval(ifExpression.Condition)
+func evalIfExpression(ifExpression *ast.IfExpression, env *object.Environment) object.Object {
+	condition := Eval(ifExpression.Condition, env)
 	if isError(condition) {
 		return condition
 	}
 
 	if isTruthy(condition) {
-		return Eval(ifExpression.Consequence)
+		return Eval(ifExpression.Consequence, env)
 	} else if ifExpression.Alternative != nil {
-		return Eval(ifExpression.Alternative)
+		return Eval(ifExpression.Alternative, env)
 	} else {
 		return NULL
 	}

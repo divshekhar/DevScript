@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"devscript/eval"
 	"devscript/lexer"
+	"devscript/object"
 	"devscript/parser"
 	"fmt"
 	"io"
@@ -13,6 +14,8 @@ const PROMPT = ">> "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	// New environment
+	env := object.NewEnvironment()
 
 	for {
 		fmt.Print(PROMPT)
@@ -31,7 +34,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		evaluatedResult := eval.Eval(program)
+		evaluatedResult := eval.Eval(program, env)
 		if evaluatedResult != nil {
 			io.WriteString(out, evaluatedResult.Inspect())
 			io.WriteString(out, "\n")

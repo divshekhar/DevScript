@@ -4,6 +4,7 @@ import (
 	"devscript/ast"
 	"devscript/eval"
 	"devscript/lexer"
+	"devscript/object"
 	"devscript/parser"
 	"devscript/token"
 	"fmt"
@@ -40,7 +41,8 @@ func evalInput(input string) {
 	lex := lexer.New(input)
 	parser := parser.New(lex)
 	program := parser.ParseProgram()
-	result := eval.Eval(program)
+	env := object.NewEnvironment()
+	result := eval.Eval(program, env)
 	fmt.Println("------EVALUATOR OUTPUT-------")
 	fmt.Printf("Result: %+v", result.Inspect())
 }
