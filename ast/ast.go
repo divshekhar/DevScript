@@ -4,25 +4,19 @@ import (
 	"bytes"
 )
 
-/*
-AST is represented in form of nodes
-*/
+// AST is represented in form of nodes
 type Node interface {
 	TokenLiteral() string
 	String() string
 }
 
-/*
-Program contains a list of statements
-*/
+// Program contains a list of statements
 type Program struct {
 	Statements []Statement
 }
 
-/*
-Returns the token literal of the first statement,
-empty string if there are no statements
-*/
+// Returns the token literal of the first statement,
+// empty string if there are no statements
 func (p *Program) TokenLiteral() string {
 	if len(p.Statements) > 0 {
 		return p.Statements[0].TokenLiteral()
@@ -31,9 +25,7 @@ func (p *Program) TokenLiteral() string {
 	}
 }
 
-/*
-String reprentation of the program
-*/
+// String reprentation of the program
 func (p *Program) String() string {
 	var out bytes.Buffer
 

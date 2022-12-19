@@ -9,7 +9,7 @@ package object
 type Environment struct {
 	// store is a map of string to Object
 	store map[string]Object
-	// outer is the outer Environment
+	// points to the outer environment
 	outer *Environment
 }
 
@@ -19,10 +19,10 @@ func NewEnvironment() *Environment {
 	return &Environment{store: store, outer: nil}
 }
 
-// EnclosedEnvironment returns a new Environment with the given store
-func NewEnclosedEnvironment(outer *Environment) *Environment {
+// returns a new Environment with the given store
+func NewEnclosedEnvironment(parentEnv *Environment) *Environment {
 	env := NewEnvironment()
-	env.outer = outer
+	env.outer = parentEnv
 	return env
 }
 

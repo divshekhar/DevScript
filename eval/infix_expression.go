@@ -2,18 +2,32 @@ package eval
 
 import "devscript/object"
 
+// Evaluates an infix expression
+//
+//	5 + 5;		// 10 (object.Integer)
 func evalInfixExpression(operator string, left, right object.Object) object.Object {
 	switch {
+	// if both objects are integers, evaluate the infix expression
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
-		return evalIntegerInfixExpression(operator, left, right)
+		{
+			return evalIntegerInfixExpression(operator, left, right)
+		}
 	case operator == "==":
-		return nativeBoolToBooleanObject(left == right)
+		{
+			return nativeBoolToBooleanObject(left == right)
+		}
 	case operator == "!=":
-		return nativeBoolToBooleanObject(left != right)
+		{
+			return nativeBoolToBooleanObject(left != right)
+		}
 	case left.Type() != right.Type():
-		return newError("type mismatch: %s %s %s", left.Type(), operator, right.Type())
+		{
+			return newError("type mismatch: %s %s %s", left.Type(), operator, right.Type())
+		}
 	default:
-		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
+		{
+			return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
+		}
 	}
 }
 

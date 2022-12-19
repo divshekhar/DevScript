@@ -48,8 +48,16 @@ func evalInput(input string) {
 }
 
 func main() {
-	input := "if (true) { 99 } else { 100 }"
-	tokenizeInput(input)
-	parseInput(input)
+	input := `
+	var x = 5;
+
+	if (x) {
+		return true;
+	} else {
+		return false;
+	}
+	`
+	// tokenizeInput(input)
+	// parseInput(input)
 	evalInput(input)
 }

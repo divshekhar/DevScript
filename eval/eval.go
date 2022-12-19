@@ -93,7 +93,14 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 	// Evaluate Call Expressions
 	case *ast.CallExpression:
-		return evalCallExpression(node, env)
+		{
+			function := Eval(node.Function, env)
+			if isError(function) {
+				return function
+			}
+
+			return evalCallExpression(node, function, env)
+		}
 
 	// Evaluate Return Statements
 	case *ast.ReturnStatement:

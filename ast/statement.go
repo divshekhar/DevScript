@@ -7,8 +7,6 @@ import (
 
 // Statement is a Node that can be executed
 //
-// Example:
-//
 //	var x = 5;	// var statement
 //	return 5;	// return statement
 //	5 + 5;		// expression statement
