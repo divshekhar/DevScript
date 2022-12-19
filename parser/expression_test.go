@@ -37,7 +37,9 @@ func TestIdentifierExpression(testing *testing.T) {
 		testing.Fatalf("statement not *ast.ExpressionStatement. got=%T", statement)
 	}
 
-	testIdentifier(testing, expressionStatement.Expression, "foobar")
+	if !testIdentifier(testing, expressionStatement.Expression, "foobar") {
+		return
+	}
 }
 
 func TestParsingPrefixExpressions(t *testing.T) {
@@ -197,7 +199,7 @@ func testLiteralExpression(testing *testing.T, expression ast.Expression, expect
 func testIdentifier(t *testing.T, expression ast.Expression, value string) bool {
 	identifier, ok := expression.(*ast.Identifier)
 	if !ok {
-		t.Errorf("expression not *ast.Identifier. got=%T", expression)
+		t.Fatalf("expression not *ast.Identifier. got=%T", expression)
 		return false
 	}
 

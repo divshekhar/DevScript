@@ -65,7 +65,7 @@ func (parser *Parser) parseVarStatement() *ast.VarStatement {
 	statement.Value = parser.parseExpression(LOWEST)
 
 	// Check if the next token is a semicolon
-	for !parser.curTokenIs(token.SEMICOLON) {
+	if parser.peekTokenIs(token.SEMICOLON) {
 		parser.nextToken()
 	}
 
@@ -92,7 +92,7 @@ func (parser *Parser) parseReturnStatement() *ast.ReturnStatement {
 	statement.ReturnValue = parser.parseExpression(LOWEST)
 
 	// Check if the next token is a semicolon
-	for !parser.curTokenIs(token.SEMICOLON) {
+	if parser.peekTokenIs(token.SEMICOLON) {
 		parser.nextToken()
 	}
 
