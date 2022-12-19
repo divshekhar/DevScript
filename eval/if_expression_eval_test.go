@@ -2,7 +2,6 @@ package eval
 
 import (
 	"devscript/object"
-	"fmt"
 	"testing"
 )
 
@@ -22,7 +21,6 @@ func TestIfElseExpressions(t *testing.T) {
 
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
-		fmt.Println(evaluated)
 		integer, ok := tt.expected.(int)
 		if ok {
 			testIntegerObject(t, evaluated, int64(integer))

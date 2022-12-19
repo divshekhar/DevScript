@@ -8,8 +8,7 @@ import (
 func evalIfExpression(ifExpression *ast.IfExpression) object.Object {
 	condition := Eval(ifExpression.Condition)
 	if isTruthy(condition) {
-		consequence := Eval(ifExpression.Consequence)
-		return consequence
+		return Eval(ifExpression.Consequence)
 	} else if ifExpression.Alternative != nil {
 		return Eval(ifExpression.Alternative)
 	} else {
