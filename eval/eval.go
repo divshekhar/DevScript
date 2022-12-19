@@ -15,59 +15,97 @@ var (
 // Eval evaluates an AST
 func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
+
+	// Program is the root node of the AST
 	case *ast.Program:
 		return evalProgram(node, env)
+
+	// Evaluate Variable Statements
 	case *ast.VarStatement:
-		val := Eval(node.Value, env)
-		if isError(val) {
+		{
+			val := Eval(node.Value, env)
+			if isError(val) {
+				return val
+			}
+			env.Set(node.Name.Value, val)
 			return val
 		}
-		env.Set(node.Name.Value, val)
-		return val
+
+	// Evaluate Expressions
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
+
+	// Evaluate Identifier
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
+
+	// Evaluate Integer Literals
 	case *ast.IntegerLiteral:
-		// Zero is a special case
-		if node.Value == 0 {
-			return ZERO
+		{
+			// Zero is a special case
+			if node.Value == 0 {
+				return ZERO
+			}
+			return &object.Integer{Value: node.Value}
 		}
-		return &object.Integer{Value: node.Value}
+
+	// Evaluate Boolean Literals
 	case *ast.Boolean:
 		return nativeBoolToBooleanObject(node.Value)
+
+	// Evaluate Prefix Expressions
 	case *ast.PrefixExpression:
-		right := Eval(node.Right, env)
-		if isError(right) {
-			return right
+		{
+			right := Eval(node.Right, env)
+			if isError(right) {
+				return right
+			}
+
+			return evalPrefixExpression(node.Operator, right)
 		}
 
-		return evalPrefixExpression(node.Operator, right)
+	// Evaluate Infix Expressions
 	case *ast.InfixExpression:
-		left := Eval(node.Left, env)
-		if isError(left) {
-			return left
+		{
+			left := Eval(node.Left, env)
+			if isError(left) {
+				return left
+			}
+
+			right := Eval(node.Right, env)
+			if isError(right) {
+				return right
+			}
+			return evalInfixExpression(node.Operator, left, right)
 		}
 
-		right := Eval(node.Right, env)
-		if isError(right) {
-			return right
-		}
-
-		return evalInfixExpression(node.Operator, left, right)
+	// Evaluate Block Statements
 	case *ast.BlockStatement:
 		return evalBlockStatement(node, env)
+
+	// Evaluate If Expressions
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
+
+	// Evaluate Function Literals
+	case *ast.FunctionLiteral:
+		return evalFunctionLiteral(node, env)
+
+	// Evaluate Call Expressions
+	case *ast.CallExpression:
+		return evalCallExpression(node, env)
+
+	// Evaluate Return Statements
 	case *ast.ReturnStatement:
-		val := Eval(node.ReturnValue, env)
-		if isError(val) {
-			return val
+		{
+			val := Eval(node.ReturnValue, env)
+			if isError(val) {
+				return val
+			}
+			return &object.ReturnValue{Value: val}
 		}
-		return &object.ReturnValue{Value: val}
-	default:
-		return NULL
 	}
+	return NULL
 }
 
 func evalProgram(node *ast.Program, env *object.Environment) object.Object {
