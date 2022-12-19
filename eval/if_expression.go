@@ -7,6 +7,10 @@ import (
 
 func evalIfExpression(ifExpression *ast.IfExpression) object.Object {
 	condition := Eval(ifExpression.Condition)
+	if isError(condition) {
+		return condition
+	}
+
 	if isTruthy(condition) {
 		return Eval(ifExpression.Consequence)
 	} else if ifExpression.Alternative != nil {
