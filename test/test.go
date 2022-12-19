@@ -2,14 +2,14 @@ package main
 
 import (
 	"devscript/ast"
+	"devscript/eval"
 	"devscript/lexer"
 	"devscript/parser"
 	"devscript/token"
 	"fmt"
 )
 
-func testLexerPhase() {
-	input := "var x = 5;"
+func tokenizeInput(input string) {
 	lex := lexer.New(input)
 	fmt.Println("------LEXER OUTPUT-------")
 	for tok := lex.NextToken(); tok.Type != token.EOF; tok = lex.NextToken() {
@@ -17,31 +17,7 @@ func testLexerPhase() {
 	}
 }
 
-func testParserPhase() {
-	input := `
-	var x = 5;
-	var y = 10;
-	var z = 10000
-	foobar;
-	func
-	5;
-	10;
-	-5;
-	!-5;
-	!5;
-	a + b + c;
-	a + b - c;
-	a + b / c;
-	5 > 4 == 3 < 4;
-	true;
-	true == true;
-	false == false;
-	true != false;
-	10 < 1 != true;
-	10 > 1 == true;
-	10 == 10 == true;
-	10 != 10 != false;
-	`
+func parseInput(input string) {
 	lex := lexer.New(input)
 	parser := parser.New(lex)
 	program := parser.ParseProgram()
@@ -60,7 +36,18 @@ func testParserPhase() {
 	}
 }
 
+func evalInput(input string) {
+	lex := lexer.New(input)
+	parser := parser.New(lex)
+	program := parser.ParseProgram()
+	result := eval.Eval(program)
+	fmt.Println("------EVALUATOR OUTPUT-------")
+	fmt.Printf("Result: %+v", result.Inspect())
+}
+
 func main() {
-	testLexerPhase()
-	testParserPhase()
+	input := "if (true) { 99 } else { 100 }"
+	tokenizeInput(input)
+	parseInput(input)
+	evalInput(input)
 }
