@@ -5,13 +5,15 @@ import (
 	"devscript/object"
 )
 
-// evalStatements evaluates a list of statements
-func evalStatements(statements []ast.Statement) object.Object {
+func evalBlockStatement(block *ast.BlockStatement) object.Object {
 	var result object.Object
 
-	for _, statement := range statements {
+	for _, statement := range block.Statements {
 		result = Eval(statement)
-	}
 
+		if result != nil && result.Type() == object.RETURN_VALUE_OBJ {
+			return result
+		}
+	}
 	return result
 }
