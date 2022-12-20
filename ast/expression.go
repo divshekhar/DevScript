@@ -189,6 +189,37 @@ func (fl *FunctionLiteral) String() string {
 	return out.String()
 }
 
+// FunctionExpression
+type FunctionExpression struct {
+	Token      token.Token
+	Name       *Identifier
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (functionExpression *FunctionExpression) expressionNode() {}
+func (functionExpression *FunctionExpression) TokenLiteral() string {
+	return functionExpression.Token.Literal
+}
+func (functionExpression *FunctionExpression) String() string {
+	var out bytes.Buffer
+
+	params := []string{}
+	for _, p := range functionExpression.Parameters {
+		params = append(params, p.String())
+	}
+
+	out.WriteString(functionExpression.TokenLiteral())
+	out.WriteString(" ")
+	out.WriteString(functionExpression.Name.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(") ")
+	out.WriteString(functionExpression.Body.String())
+
+	return out.String()
+}
+
 // CallExpression is a node that represents a function call
 //
 //	add(1, 2 * 3, 4 + 5);

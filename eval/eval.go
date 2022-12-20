@@ -87,6 +87,10 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
 
+	// Evaluate Function Expression
+	case *ast.FunctionExpression:
+		return evalFunctionExpression(node, env)
+
 	// Evaluate Function Literals
 	case *ast.FunctionLiteral:
 		return evalFunctionLiteral(node, env)
@@ -112,7 +116,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return &object.ReturnValue{Value: val}
 		}
 	}
-	return NULL
+
+	return nil
 }
 
 func evalProgram(node *ast.Program, env *object.Environment) object.Object {

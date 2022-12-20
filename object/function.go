@@ -7,6 +7,7 @@ import (
 )
 
 type Function struct {
+	Name       *ast.Identifier
 	Parameters []*ast.Identifier
 	Body       *ast.BlockStatement
 	Env        *Environment

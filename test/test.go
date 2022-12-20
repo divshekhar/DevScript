@@ -51,8 +51,12 @@ func main() {
 	input := `
 	var x = 5;
 
-	if (x) {
-		return true;
+	func add(x, y) {
+		return x + y;
+	}
+
+	if (true) {
+		add(x, 5);
 	} else {
 		return false;
 	}

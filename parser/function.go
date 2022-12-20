@@ -5,12 +5,27 @@ import (
 	"devscript/token"
 )
 
-// Function to parse the function literals
-//
-//	fn(x, y) { x + y };	// parseFunctionLiteral
-func (parser *Parser) parseFunctionLiteral() ast.Expression {
-	// Create a new function literal
-	lit := &ast.FunctionLiteral{Token: parser.curToken}
+func (parser *Parser) parseFunctionExpression() ast.Expression {
+	// Create a new function expression
+	functionExpression := &ast.FunctionExpression{Token: parser.curToken}
+
+	// Check if the next token is a LPAREN token
+	// For function expressions, peek token should be {token.IDENT, "foo"}
+	if !parser.peekTokenIs(token.IDENT) {
+		// if the next token is a LPAREN token, then it is a function literal
+		if parser.peekTokenIs(token.LPAREN) {
+			return parser.parseFunctionLiteral()
+		}
+
+		return nil
+	}
+
+	// Advance the token
+	// from {token.FUNCTION, "func"} to {token.IDENT, "foo"}
+	parser.nextToken()
+
+	// Parse the function name
+	functionExpression.Name = &ast.Identifier{Token: parser.curToken, Value: parser.curToken.Literal}
 
 	// Check if the next token is a LPAREN token
 	if !parser.expectPeek(token.LPAREN) {
@@ -18,7 +33,7 @@ func (parser *Parser) parseFunctionLiteral() ast.Expression {
 	}
 
 	// Parse the function parameters
-	lit.Parameters = parser.parseFunctionParameters()
+	functionExpression.Parameters = parser.parseFunctionParameters()
 
 	// Check if the next token is a LBRACE token
 	if !parser.expectPeek(token.LBRACE) {
@@ -26,9 +41,35 @@ func (parser *Parser) parseFunctionLiteral() ast.Expression {
 	}
 
 	// Parse the function body
-	lit.Body = parser.parseBlockStatement()
+	functionExpression.Body = parser.parseBlockStatement()
 
-	return lit
+	return functionExpression
+}
+
+// Function to parse the function literals
+//
+//	fn(x, y) { x + y };	// parseFunctionLiteral
+func (parser *Parser) parseFunctionLiteral() ast.Expression {
+	// Create a new function literal
+	functionLiteral := &ast.FunctionLiteral{Token: parser.curToken}
+
+	// Check if the next token is a LPAREN token
+	if !parser.expectPeek(token.LPAREN) {
+		return nil
+	}
+
+	// Parse the function parameters
+	functionLiteral.Parameters = parser.parseFunctionParameters()
+
+	// Check if the next token is a LBRACE token
+	if !parser.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	// Parse the function body
+	functionLiteral.Body = parser.parseBlockStatement()
+
+	return functionLiteral
 }
 
 // Function to parse the function parameters
