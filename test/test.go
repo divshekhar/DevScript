@@ -1,12 +1,12 @@
 package main
 
 import (
-	"devscript/ast"
-	"devscript/eval"
-	"devscript/lexer"
-	"devscript/object"
-	"devscript/parser"
-	"devscript/token"
+	"devscript/src/ast"
+	"devscript/src/eval"
+	"devscript/src/lexer"
+	"devscript/src/object"
+	"devscript/src/parser"
+	"devscript/src/token"
 	"fmt"
 )
 
