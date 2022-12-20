@@ -5,6 +5,23 @@ import (
 	"devscript/object"
 )
 
+// evaluates a function expression
+//
+//	func add(x, y) {
+//	  return x + y;
+//	}
+func evalFunctionExpression(node *ast.FunctionExpression, env *object.Environment) object.Object {
+	name := node.Name
+	parameters := node.Parameters
+	body := node.Body
+	obj := &object.Function{Name: name, Parameters: parameters, Body: body}
+
+	// mapping function object to function name
+	env.Set(name.Value, obj)
+
+	return obj
+}
+
 // evaluates a function literal.
 //
 //	fn(x, y) { x + y; }; // function literal

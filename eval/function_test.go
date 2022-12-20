@@ -5,6 +5,46 @@ import (
 	"testing"
 )
 
+func TestFunctionExpression(testing *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{`
+		func add(x, y) {
+			return x + y;
+		}
+	
+		add(2, 3)
+		`, 5},
+
+		{`
+		func add(x, y, z) {
+			return x + y + z;
+		}
+	
+		add(2, 3, 5)
+		`, 10},
+
+		{`
+		func doNothing(x, y, z) {
+		}
+	
+		doNothing(2, 3, 5)
+		`, nil},
+	}
+
+	for _, test := range tests {
+		evaluated := testEval(test.input)
+		integer, ok := test.expected.(int)
+		if ok {
+			testIntegerObject(testing, evaluated, int64(integer))
+		} else {
+			// testNullObject(testing, evaluated)
+		}
+	}
+}
+
 func TestFunctionObject(t *testing.T) {
 	input := `func(x) { x + 2; };`
 
