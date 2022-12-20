@@ -13,7 +13,8 @@ import (
 //	    ...
 //	}
 func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) object.Object {
-	var result object.Object
+	// if block is empty, then return NULL
+	var result object.Object = NULL
 
 	for _, statement := range block.Statements {
 		result = Eval(statement, env)

@@ -15,7 +15,7 @@ func TestFunctionExpression(testing *testing.T) {
 			return x + y;
 		}
 	
-		add(2, 3)
+		add(2, 3);
 		`, 5},
 
 		{`
@@ -23,14 +23,14 @@ func TestFunctionExpression(testing *testing.T) {
 			return x + y + z;
 		}
 	
-		add(2, 3, 5)
+		add(2, 3, 5);
 		`, 10},
 
 		{`
 		func doNothing(x, y, z) {
 		}
 	
-		doNothing(2, 3, 5)
+		doNothing(2, 3, 5);
 		`, nil},
 	}
 
@@ -40,7 +40,7 @@ func TestFunctionExpression(testing *testing.T) {
 		if ok {
 			testIntegerObject(testing, evaluated, int64(integer))
 		} else {
-			// testNullObject(testing, evaluated)
+			testNullObject(testing, evaluated)
 		}
 	}
 }
