@@ -65,7 +65,18 @@ func (lexer *Lexer) NextToken() token.Token {
 	case '*':
 		tok = newToken(token.ASTERISK, lexer.char)
 	case '/':
-		tok = newToken(token.SLASH, lexer.char)
+		// check for "//" (comment)
+		if lexer.peekChar() == '/' {
+			// read the second '/'
+			lexer.readChar()
+
+			// skip until end of line
+			lexer.skipLine()
+
+			tok = lexer.NextToken()
+		} else {
+			tok = newToken(token.SLASH, lexer.char)
+		}
 	case '!':
 		// check for "!=" (NOT_EQ)
 		if lexer.peekChar() == '=' {
@@ -170,6 +181,13 @@ func isLetter(ch byte) bool {
 
 func isDigit(ch byte) bool {
 	return ch >= '0' && ch <= '9'
+}
+
+// skips the current line
+func (lexer *Lexer) skipLine() {
+	for lexer.char != '\n' {
+		lexer.readChar()
+	}
 }
 
 func (lexer *Lexer) skipWhitespace() {
