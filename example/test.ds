@@ -1,0 +1,19 @@
+var x = 10;
+var y = 20;
+
+// function to add two numbers
+func add(x, y) {
+    return x + y;
+}
+
+// function to subtract two numbers
+var sub = func(x, y) {
+    return x - y;
+}
+
+var userCommand = 2;
+
+var result = if(userCommand == 1) { add(x, y); } else { sub(x, y); };
+
+// print the result
+result;
