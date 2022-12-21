@@ -1,8 +1,8 @@
 package lexer
 
 import (
-	"testing"
 	"devscript/src/token"
+	"testing"
 )
 
 func TestNextToken(t *testing.T) {
@@ -10,7 +10,8 @@ func TestNextToken(t *testing.T) {
 	var ten = 10;
 	var n2 = 11;
 
-	var add = fn(x, y) {
+	// This should be a ignored
+	var add = func(x, y) {
 		x + y;
 	};
 
@@ -50,7 +51,7 @@ func TestNextToken(t *testing.T) {
 		{token.VAR, "var"},
 		{token.IDENT, "add"},
 		{token.ASSIGN, "="},
-		{token.FUNCTION, "fn"},
+		{token.FUNCTION, "func"},
 		{token.LPAREN, "("},
 		{token.IDENT, "x"},
 		{token.COMMA, ","},
