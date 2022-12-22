@@ -168,6 +168,37 @@ func TestStringEvaluation(t *testing.T) {
 	}
 }
 
+func TestStringConcatenation(t *testing.T) {
+	test := []struct {
+		input    string
+		expected string
+	}{
+		{"\"Hello\" + \" \" + \"World!\"", "Hello World!"},
+	}
+
+	for _, tt := range test {
+		evaluated := testEval(tt.input)
+		testStringObject(t, evaluated, "Hello World!")
+	}
+}
+
+func TestStringComparison(t *testing.T) {
+	test := []struct {
+		input    string
+		expected bool
+	}{
+		{"\"Hello\" == \"Hello\"", true},
+		{"\"Hello\" != \"Hello\"", false},
+		{"\"Hello\" == \"World\"", false},
+		{"\"Hello\" != \"World\"", true},
+	}
+
+	for _, tt := range test {
+		evaluated := testEval(tt.input)
+		testBooleanObject(t, evaluated, tt.expected)
+	}
+}
+
 func testStringObject(t *testing.T, evaluated object.Object, expected string) bool {
 	result, ok := evaluated.(*object.String)
 	if !ok {
