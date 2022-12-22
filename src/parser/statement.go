@@ -54,11 +54,37 @@ func (parser *Parser) parseVarStatement() *ast.VarStatement {
 
 	// Check if the next token is an assignment operator
 	// return nil if the next token is not an assignment operator
-	if !parser.expectPeek(token.ASSIGN) {
-		return nil
+	//
+	// curToken: {Type: token.IDENT, Literal: "x"}
+	// peekToken: {Type: token.ASSIGN, Literal: "="}
+	if !parser.peekTokenIs(token.ASSIGN) {
+
+		// if the next token is a semicolon,
+		// then the variable statement is a declaration statement
+		//
+		// curToken: {Type: token.IDENT, Literal: "x"}
+		// peekToken: {Type: token.SEMICOLON, Literal: ";"}
+		if parser.peekTokenIs(token.SEMICOLON) {
+			parser.nextToken()
+		}
+
+		// Default value of the variable is 0 (integer)
+		statement.Value = &ast.IntegerLiteral{
+			Token: token.Token{Type: token.INT, Literal: "0"},
+			Value: 0,
+		}
+
+		return statement
 	}
 
 	// Advance the current token to the next token
+	//
+	// curToken: {Type: token.ASSIGN, Literal: "="}
+	// peekToken: {Type: token.INT, Literal: "5"}
+	parser.nextToken()
+
+	// curToken: {Type: token.INT, Literal: "5"}
+	// peekToken: {Type: token.SEMICOLON, Literal: ";"}
 	parser.nextToken()
 
 	// Parse the expression

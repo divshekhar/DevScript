@@ -15,6 +15,9 @@ func TestVarStatement(testing *testing.T) {
 		{"var x = 5;", "x", 5},
 		{"var y = true;", "y", true},
 		{"var foobar = y;", "foobar", "y"},
+		// Variable Declaration Test
+		{"var a;", "a", 0},
+		{"var d;", "d", 0},
 	}
 
 	for _, tt := range tests {
