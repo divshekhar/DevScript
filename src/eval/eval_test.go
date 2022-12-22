@@ -143,19 +143,42 @@ func TestBangOperator(t *testing.T) {
 //
 //	a = 5;	// Assignment expression
 func TestAssignmentEvaluation(t *testing.T) {
+	input := `
+	var a = 5;
+	a = 10;
+	`
+	evaluated := testEval(input)
+
+	testIntegerObject(t, evaluated, 10)
+}
+
+// Function to test string evaluation
+func TestStringEvaluation(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected int64
+		expected string
 	}{
-		{"a = 5", 5},
-		{"a = 5; a", 5},
-		{"a = 5 * 5; a", 25},
-		{"a = 5; b = a; b", 5},
-		{"a = 5; b = a; a = b; a", 5},
+		{"\"hello\"", "hello"},
+		{"\"hello world\"", "hello world"},
 	}
 
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
-		testIntegerObject(t, evaluated, tt.expected)
+		testStringObject(t, evaluated, tt.expected)
 	}
+}
+
+func testStringObject(t *testing.T, evaluated object.Object, expected string) bool {
+	result, ok := evaluated.(*object.String)
+	if !ok {
+		t.Errorf("object is not String. got=%T (%+v)", evaluated, evaluated)
+		return false
+	}
+
+	if result.Value != expected {
+		t.Errorf("object has wrong value. got=%s, want=%s", result.Value, expected)
+		return false
+	}
+
+	return true
 }
