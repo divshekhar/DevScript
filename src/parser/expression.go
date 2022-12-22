@@ -101,3 +101,22 @@ func (parser *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 func (parser *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: parser.curToken, Value: parser.curToken.Literal}
 }
+
+// Function to parse assignment expressions
+//
+//	foo = 5;	// parseAssignmentExpression
+func (parser *Parser) parseAssignmentExpression(left ast.Expression) ast.Expression {
+	// Create a new AssignmentExpression struct instance, set the token to the current token
+	assignmentExpression := &ast.AssignmentExpression{
+		Token: parser.curToken,
+		Name:  left.(*ast.Identifier),
+	}
+
+	// Advance to the next token
+	parser.nextToken()
+
+	// Initialize the Value field of the AssignmentExpression struct instance, with precedence of ASSIGNMENT
+	assignmentExpression.Value = parser.parseExpression(ASSIGN)
+
+	return assignmentExpression
+}

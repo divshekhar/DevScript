@@ -248,3 +248,26 @@ func (ce *CallExpression) String() string {
 
 	return out.String()
 }
+
+// AssignmentExpression is a node that represents an assignment expression
+//
+//	x = 5;
+type AssignmentExpression struct {
+	Token token.Token
+	Name  *Identifier
+	Value Expression
+}
+
+func (ae *AssignmentExpression) expressionNode() {}
+func (ae *AssignmentExpression) TokenLiteral() string {
+	return ae.Token.Literal
+}
+func (ae *AssignmentExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(ae.Name.String())
+	out.WriteString(" = ")
+	out.WriteString(ae.Value.String())
+
+	return out.String()
+}

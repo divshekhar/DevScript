@@ -216,3 +216,76 @@ func testIdentifier(t *testing.T, expression ast.Expression, value string) bool 
 	return true
 
 }
+
+// Function to test assignment expressions
+func TestParsingAssignmentExpressions(t *testing.T) {
+	assignmentTests := []struct {
+		input    string
+		leftVal  interface{}
+		operator string
+		rightVal interface{}
+	}{
+		{"x = 5;", "x", "=", 5},
+		{"y = 10;", "y", "=", 10},
+		{"foobar = y;", "foobar", "=", "y"},
+	}
+
+	// Test each assignment expression
+	for _, assignmentTest := range assignmentTests {
+		lex := lexer.New(assignmentTest.input)
+		parser := New(lex)
+		program := parser.ParseProgram()
+		checkParserErrors(t, parser)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("program.Statements does not contain %d statements. got=%d", 1, len(program.Statements))
+		}
+
+		statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+		}
+
+		testAssignmentExpression(t, statement.Expression, assignmentTest.leftVal, assignmentTest.operator, assignmentTest.rightVal)
+	}
+}
+
+// Function to test assignment expressions
+//
+// Tests:
+//
+// 1. Check if the expression is of type *ast.AssignmentExpression
+//
+// 2. Check if the left value is correct
+//
+// 3. Check if the operator is correct
+//
+// 4. Check if the right value is correct
+func testAssignmentExpression(testing *testing.T, expression ast.Expression, left interface{}, operator string, right interface{}) bool {
+	assignmentExpression, ok := expression.(*ast.AssignmentExpression)
+
+	// Check if the expression
+	if !ok {
+		testing.Errorf("expression is not ast.AssignmentExpression. got=%T(%s)", expression, expression)
+		return false
+	}
+
+	// Check if the left value is correct
+
+	if !testLiteralExpression(testing, assignmentExpression.Name, left) {
+		return false
+	}
+
+	// Check if the operator is correct
+	if assignmentExpression.TokenLiteral() != operator {
+		testing.Errorf("expression.Operator is not '%s'. got=%s", operator, assignmentExpression.TokenLiteral())
+		return false
+	}
+
+	// Check if the right value is correct
+	if !testLiteralExpression(testing, assignmentExpression.Value, right) {
+		return false
+	}
+
+	return true
+}

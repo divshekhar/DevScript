@@ -6,16 +6,25 @@ import "devscript/src/token"
 const (
 	_ int = iota
 	LOWEST
-	EQUALS      // ==
-	LESSGREATER // > or <
-	SUM         // +
-	PRODUCT     // *
-	PREFIX      // -X or !X
-	CALL        // myFunction(X)
+	// =
+	ASSIGN
+	// == or !=
+	EQUALS
+	// < or >
+	LESSGREATER
+	// + or -
+	SUM
+	// * or /
+	PRODUCT
+	// -X or !X
+	PREFIX
+	// myFunction(X)
+	CALL
 )
 
 // Map of precedences
 var precedences = map[token.TokenType]int{
+	token.ASSIGN:   ASSIGN,
 	token.EQ:       EQUALS,
 	token.NOT_EQ:   EQUALS,
 	token.LT:       LESSGREATER,

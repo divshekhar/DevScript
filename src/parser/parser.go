@@ -86,6 +86,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.registerInfix(token.LT, parser.parseInfixExpression)
 	parser.registerInfix(token.GT, parser.parseInfixExpression)
 	parser.registerInfix(token.LPAREN, parser.parseCallExpression)
+	parser.registerInfix(token.ASSIGN, parser.parseAssignmentExpression)
 
 	return parser
 }
