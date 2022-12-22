@@ -80,6 +80,11 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 		// Evaluate the function body in the new environment
 		evaluated := Eval(fn.Body, extendedEnv)
 		return unwrapReturnValue(evaluated)
+
+	// If the function is a builtin function, call it.
+	case *object.Builtin:
+		return fn.Function(args...)
+		
 	default:
 		return newError("not a function: %s", fn.Type())
 	}

@@ -7,11 +7,14 @@ import (
 
 func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object {
 	// Get the value of the identifier from the environment
-	val, ok := env.Get(node.Value)
-
-	if !ok {
-		return newError("identifier not found: " + node.Value)
+	if val, ok := env.Get(node.Value); ok {
+		return val
 	}
 
-	return val
+	// Check if the identifier is a builtin function
+	if builtin, ok := builtins[node.Value]; ok {
+		return builtin
+	}
+
+	return newError("identifier not found: " + node.Value)
 }
