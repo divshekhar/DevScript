@@ -120,3 +120,10 @@ func (parser *Parser) parseAssignmentExpression(left ast.Expression) ast.Express
 
 	return assignmentExpression
 }
+
+// Function to parse the string literals
+//
+//	"foobar"; "foo bar";
+func (parser *Parser) parseStringLiteral() ast.Expression {
+	return &ast.StringLiteral{Token: parser.curToken, Value: parser.curToken.Literal}
+}

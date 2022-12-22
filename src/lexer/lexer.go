@@ -94,6 +94,11 @@ func (lexer *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, lexer.char)
 	case '}':
 		tok = newToken(token.RBRACE, lexer.char)
+	case '"':
+		{
+			tok.Type = token.STRING
+			tok.Literal = lexer.readString()
+		}
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -116,18 +121,15 @@ func (lexer *Lexer) NextToken() token.Token {
 	return tok
 }
 
-/*
-newToken return new instance of type Token struct
-{Type: tokenType, Literal: string}
-*/
+// newToken return new instance of type Token struct
+//
+//	{Type: TokenType, Literal: string}
 func newToken(tokenType token.TokenType, ch byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(ch)}
 }
 
-/*
-function to return an identifier name
-using maximal munch rule (longest common prefix)
-*/
+// function to return an identifier name
+// using maximal munch rule (longest common prefix)
 func (lexer *Lexer) readIdentifier() string {
 	start := lexer.position
 
@@ -140,16 +142,30 @@ func (lexer *Lexer) readIdentifier() string {
 	return lexer.input[start:lexer.position]
 }
 
-/*
-function to return number
-using maximal munch rule (longest common prefix)
-*/
+// function to return number
+// using maximal munch rule (longest common prefix)
 func (lexer *Lexer) readNumber() string {
 	start := lexer.position
 
 	// readChar until char is not a number
 	for isDigit(lexer.char) {
 		lexer.readChar()
+	}
+
+	// end position = lexer.position
+	return lexer.input[start:lexer.position]
+}
+
+func (lexer *Lexer) readString() string {
+	start := lexer.position + 1
+
+	for {
+		lexer.readChar()
+
+		// readChar until char is not a " or, end of file
+		if lexer.char == '"' || lexer.char == 0 {
+			break
+		}
 	}
 
 	// end position = lexer.position
@@ -164,9 +180,7 @@ func (lexer *Lexer) peekChar() byte {
 	}
 }
 
-/*
-returns true only if the identifier starts with a letter or _ else false
-*/
+// returns true only if the identifier starts with a letter or _ else false
 func validStartIdentifier(ch byte) bool {
 	return isLetter(ch) || ch == '_'
 }

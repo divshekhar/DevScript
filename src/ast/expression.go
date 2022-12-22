@@ -54,6 +54,24 @@ func (il *IntegerLiteral) String() string {
 	return il.Token.Literal
 }
 
+// StringLiteral is a node that represents a string value
+//
+//	"foobar";
+type StringLiteral struct {
+	// token.STRING token
+	Token token.Token
+	// value of the string
+	Value string
+}
+
+func (stringLiteral *StringLiteral) expressionNode() {}
+func (stringLiteral *StringLiteral) TokenLiteral() string {
+	return stringLiteral.Token.Literal
+}
+func (stringLiteral *StringLiteral) String() string {
+	return stringLiteral.Token.Literal
+}
+
 // Prefix Expression is a node that represents a prefix expression
 //
 //	-5, !true
