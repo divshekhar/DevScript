@@ -39,6 +39,17 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 
+	// Evaluate Assignment Expressions
+	case *ast.AssignmentExpression:
+		{
+			val := Eval(node.Value, env)
+			if isError(val) {
+				return val
+			}
+			env.Set(node.Name.Value, val)
+			return val
+		}
+
 	// Evaluate Integer Literals
 	case *ast.IntegerLiteral:
 		{

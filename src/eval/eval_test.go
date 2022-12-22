@@ -138,3 +138,24 @@ func TestBangOperator(t *testing.T) {
 		testBooleanObject(t, evaluated, tt.expected)
 	}
 }
+
+// Function to test evaluation of assignment expressions
+//
+//	a = 5;	// Assignment expression
+func TestAssignmentEvaluation(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"a = 5", 5},
+		{"a = 5; a", 5},
+		{"a = 5 * 5; a", 25},
+		{"a = 5; b = a; b", 5},
+		{"a = 5; b = a; a = b; a", 5},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testIntegerObject(t, evaluated, tt.expected)
+	}
+}
