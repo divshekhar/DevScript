@@ -46,6 +46,14 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			if isError(val) {
 				return val
 			}
+
+			// Check if the variable exists
+			_, ok := env.Get(node.Name.Value)
+			if !ok {
+				return newError("identifier not found: " + node.Name.Value)
+			}
+
+			// set value to the variable
 			env.Set(node.Name.Value, val)
 			return val
 		}
