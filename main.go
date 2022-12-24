@@ -90,6 +90,5 @@ func runFile(path string) {
 	program := parser.ParseProgram()
 
 	// evaluate the program
-	evaluated := eval.Eval(program, env)
-	fmt.Println(evaluated.Inspect())
+	eval.Eval(program, env)
 }

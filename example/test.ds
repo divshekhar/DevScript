@@ -1,19 +1,13 @@
 var x = 10;
 var y = 20;
 
-// function to add two numbers
+// function declaration
 func add(x, y) {
     return x + y;
 }
 
-// function to subtract two numbers
-var sub = func(x, y) {
-    return x - y;
-}
+// Conditional function call
+var res = if(x > y) { x; } else { add(x, y); }
 
-var userCommand = 2;
-
-var result = if(userCommand == 1) { add(x, y); } else { sub(x, y); };
-
-// print the result
-result;
+println(add(res,y));
+println(len("Hello World!"));
