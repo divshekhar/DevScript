@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestBuiltinFunction(t *testing.T) {
+func TestLenFunction(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected interface{}
@@ -33,5 +33,15 @@ func TestBuiltinFunction(t *testing.T) {
 				t.Errorf("wrong error message. expected=%q, got=%q", tt.expected, errObj.Message)
 			}
 		}
+	}
+}
+
+func TestPrintFunction(t *testing.T) {
+	input := `print("Hello World!")`
+
+	evaluated := testEval(input)
+
+	if evaluated != nil {
+		t.Errorf("evaluated should be nil. got=%T (%+v)", evaluated, evaluated)
 	}
 }

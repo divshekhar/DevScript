@@ -5,7 +5,9 @@ import (
 )
 
 var builtins = map[string]*object.Builtin{
-	"len": {Function: lenFunction},
+	"len":     {Function: lenFunction},
+	"print":   {Function: printFunction},
+	"println": {Function: printlnFunction},
 }
 
 // lenFunction returns the length of a string
@@ -20,4 +22,20 @@ func lenFunction(args ...object.Object) object.Object {
 	default:
 		return newError("argument to `len` not supported, got %s", args[0].Type())
 	}
+}
+
+// Print function prints the value of the object
+func printFunction(args ...object.Object) object.Object {
+	for _, arg := range args {
+		print(arg.Inspect() + " ")
+	}
+	return nil
+}
+
+// Println function prints the value of the object with a newline
+func printlnFunction(args ...object.Object) object.Object {
+	for _, arg := range args {
+		println(arg.Inspect())
+	}
+	return nil
 }
