@@ -28,6 +28,9 @@ func (i *Identifier) expressionNode() {}
 func (i *Identifier) TokenLiteral() string {
 	return i.Token.Literal
 }
+func (i *Identifier) TokenType() string {
+	return string(i.Token.Type)
+}
 func (i *Identifier) String() string {
 	return i.Value
 }
@@ -49,6 +52,11 @@ func (il *IntegerLiteral) TokenLiteral() string {
 	return il.Token.Literal
 }
 
+// returns the token type of the integer literal
+func (il *IntegerLiteral) TokenType() string {
+	return string(il.Token.Type)
+}
+
 // string representation of the integer literal
 func (il *IntegerLiteral) String() string {
 	return il.Token.Literal
@@ -67,6 +75,9 @@ type StringLiteral struct {
 func (stringLiteral *StringLiteral) expressionNode() {}
 func (stringLiteral *StringLiteral) TokenLiteral() string {
 	return stringLiteral.Token.Literal
+}
+func (stringLiteral *StringLiteral) TokenType() string {
+	return string(stringLiteral.Token.Type)
 }
 func (stringLiteral *StringLiteral) String() string {
 	return stringLiteral.Token.Literal
@@ -89,6 +100,9 @@ type PrefixExpression struct {
 func (prefixExp *PrefixExpression) expressionNode() {}
 func (prefixExp *PrefixExpression) TokenLiteral() string {
 	return prefixExp.Token.Literal
+}
+func (prefixExp *PrefixExpression) TokenType() string {
+	return string(prefixExp.Token.Type)
 }
 func (prefixExp *PrefixExpression) String() string {
 	var out bytes.Buffer
@@ -120,6 +134,9 @@ func (infixExp *InfixExpression) expressionNode() {}
 func (infixExp *InfixExpression) TokenLiteral() string {
 	return infixExp.Token.Literal
 }
+func (infixExp *InfixExpression) TokenType() string {
+	return string(infixExp.Token.Type)
+}
 func (infixExp *InfixExpression) String() string {
 	var out bytes.Buffer
 
@@ -144,6 +161,9 @@ func (b *Boolean) expressionNode() {}
 func (b *Boolean) TokenLiteral() string {
 	return b.Token.Literal
 }
+func (b *Boolean) TokenType() string {
+	return string(b.Token.Type)
+}
 func (b *Boolean) String() string {
 	return b.Token.Literal
 }
@@ -161,6 +181,9 @@ type IfExpression struct {
 func (ie *IfExpression) expressionNode() {}
 func (ie *IfExpression) TokenLiteral() string {
 	return ie.Token.Literal
+}
+func (ie *IfExpression) TokenType() string {
+	return string(ie.Token.Type)
 }
 func (ie *IfExpression) String() string {
 	var out bytes.Buffer
@@ -190,6 +213,9 @@ func (fl *FunctionLiteral) expressionNode() {}
 func (fl *FunctionLiteral) TokenLiteral() string {
 	return fl.Token.Literal
 }
+func (fl *FunctionLiteral) TokenType() string {
+	return string(fl.Token.Type)
+}
 func (fl *FunctionLiteral) String() string {
 	var out bytes.Buffer
 
@@ -218,6 +244,9 @@ type FunctionExpression struct {
 func (functionExpression *FunctionExpression) expressionNode() {}
 func (functionExpression *FunctionExpression) TokenLiteral() string {
 	return functionExpression.Token.Literal
+}
+func (functionExpression *FunctionExpression) TokenType() string {
+	return string(functionExpression.Token.Type)
 }
 func (functionExpression *FunctionExpression) String() string {
 	var out bytes.Buffer
@@ -251,6 +280,9 @@ func (ce *CallExpression) expressionNode() {}
 func (ce *CallExpression) TokenLiteral() string {
 	return ce.Token.Literal
 }
+func (ce *CallExpression) TokenType() string {
+	return string(ce.Token.Type)
+}
 func (ce *CallExpression) String() string {
 	var out bytes.Buffer
 
@@ -279,6 +311,9 @@ type AssignmentExpression struct {
 func (ae *AssignmentExpression) expressionNode() {}
 func (ae *AssignmentExpression) TokenLiteral() string {
 	return ae.Token.Literal
+}
+func (ae *AssignmentExpression) TokenType() string {
+	return string(ae.Token.Type)
 }
 func (ae *AssignmentExpression) String() string {
 	var out bytes.Buffer

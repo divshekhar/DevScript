@@ -4,10 +4,16 @@ const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
 
-	// Identifiers + literals
-	IDENT  = "IDENT"
+	DATATYPE = "DATATYPE"
+
+	// Identifiers
+	IDENT = "IDENT"
+
+	// Literals
 	INT    = "INT"
 	STRING = "STRING"
+	BOOL   = "BOOL"
+	NULL   = "NULL"
 
 	// Operators
 	ASSIGN   = "="
@@ -26,6 +32,7 @@ const (
 	// Delimiters
 	COMMA     = ","
 	SEMICOLON = ";"
+	COLON     = ":"
 
 	LPAREN = "("
 	RPAREN = ")"
@@ -57,6 +64,12 @@ var keywords = map[string]TokenType{
 	"if":     IF,
 	"else":   ELSE,
 	"return": RETURN,
+
+	// Data Types
+	"int":      DATATYPE,
+	"string":   DATATYPE,
+	"bool":     DATATYPE,
+	"function": DATATYPE,
 }
 
 /*

@@ -6,16 +6,17 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `var five = 5;
-	var ten = 10;
-	var n2 = 11;
+	input := `
+	var five: int = 5;
+	var ten: int = 10;
+	var n2: int = 11;
 
 	// This should be a ignored
-	var add = func(x, y) {
+	var add: function = func(x, y) {
 		x + y;
 	};
 
-	var result = add(five, ten);
+	var result: int = add(five, ten);
 	!-/*5;
 	5 < 10 > 5;
 

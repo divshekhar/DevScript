@@ -19,14 +19,19 @@ type Statement interface {
 //
 //	var x = 5; // var statement
 type VarStatement struct {
-	Token token.Token // the token.VAR token
-	Name  *Identifier
-	Value Expression
+	// Token is the token.VAR token
+	Token    token.Token
+	DataType token.TokenType
+	Name     *Identifier
+	Value    Expression
 }
 
 func (vs *VarStatement) statementNode() {}
 func (vs *VarStatement) TokenLiteral() string {
 	return vs.Token.Literal
+}
+func (vs *VarStatement) TokenType() string {
+	return string(vs.DataType)
 }
 func (vs *VarStatement) String() string {
 	var out bytes.Buffer
@@ -57,6 +62,9 @@ func (rs *ReturnStatement) statementNode() {}
 func (rs *ReturnStatement) TokenLiteral() string {
 	return rs.Token.Literal
 }
+func (rs *ReturnStatement) TokenType() string {
+	return string(rs.Token.Type)
+}
 func (rs *ReturnStatement) String() string {
 	var out bytes.Buffer
 
@@ -83,6 +91,9 @@ func (es *ExpressionStatement) statementNode() {}
 func (es *ExpressionStatement) TokenLiteral() string {
 	return es.Token.Literal
 }
+func (es *ExpressionStatement) TokenType() string {
+	return string(es.Token.Type)
+}
 func (es *ExpressionStatement) String() string {
 	if es.Expression != nil {
 		return es.Expression.String()
@@ -102,6 +113,9 @@ type BlockStatement struct {
 func (bs *BlockStatement) statementNode() {}
 func (bs *BlockStatement) TokenLiteral() string {
 	return bs.Token.Literal
+}
+func (bs *BlockStatement) TokenType() string {
+	return string(bs.Token.Type)
 }
 func (bs *BlockStatement) String() string {
 	var out bytes.Buffer

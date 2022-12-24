@@ -7,6 +7,7 @@ import (
 // AST is represented in form of nodes
 type Node interface {
 	TokenLiteral() string
+	TokenType() string
 	String() string
 }
 
@@ -20,6 +21,14 @@ type Program struct {
 func (p *Program) TokenLiteral() string {
 	if len(p.Statements) > 0 {
 		return p.Statements[0].TokenLiteral()
+	} else {
+		return ""
+	}
+}
+
+func (p *Program) TokenType() string {
+	if len(p.Statements) > 0 {
+		return p.Statements[0].TokenType()
 	} else {
 		return ""
 	}

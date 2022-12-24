@@ -52,6 +52,31 @@ func (parser *Parser) parseVarStatement() *ast.VarStatement {
 	// Update the Name field of the VarStatement struct instance
 	statement.Name = &ast.Identifier{Token: parser.curToken, Value: parser.curToken.Literal}
 
+	// Check data type of the variable
+	// return nil if the next token is not a colon
+	if !parser.expectPeek(token.COLON) {
+		return nil
+	}
+
+	// Check if the next token is a data type
+	if !parser.expectPeek(token.DATATYPE) {
+		return nil
+	}
+
+	// Set the data type of the variable
+	switch parser.curToken.Literal {
+	case "int":
+		statement.DataType = token.INT
+	case "string":
+		statement.DataType = token.STRING
+	case "bool":
+		statement.DataType = token.BOOL
+	case "function":
+		statement.DataType = token.FUNCTION
+	default:
+		statement.DataType = token.NULL
+	}
+
 	// Check if the next token is an assignment operator
 	// return nil if the next token is not an assignment operator
 	//
@@ -69,10 +94,8 @@ func (parser *Parser) parseVarStatement() *ast.VarStatement {
 		}
 
 		// Default value of the variable is 0 (integer)
-		statement.Value = &ast.IntegerLiteral{
-			Token: token.Token{Type: token.INT, Literal: "0"},
-			Value: 0,
-		}
+		defaultValue := parser.defaultValue(statement.DataType)
+		statement.Value = defaultValue
 
 		return statement
 	}
@@ -88,7 +111,15 @@ func (parser *Parser) parseVarStatement() *ast.VarStatement {
 	parser.nextToken()
 
 	// Parse the expression
-	statement.Value = parser.parseExpression(LOWEST)
+	value := parser.parseExpression(LOWEST)
+
+	// Check if the expression is of the same data type as the variable
+	if value.TokenType() != string(statement.DataType) {
+		parser.errors = append(parser.errors, "type mismatch")
+		return nil
+	}
+
+	statement.Value = value
 
 	// Check if the next token is a semicolon
 	if parser.peekTokenIs(token.SEMICOLON) {
@@ -96,6 +127,37 @@ func (parser *Parser) parseVarStatement() *ast.VarStatement {
 	}
 
 	return statement
+}
+
+func (parser *Parser) defaultValue(tokenType token.TokenType) ast.Expression {
+	switch tokenType {
+	case token.INT:
+		return &ast.IntegerLiteral{
+			Token: token.Token{Type: token.INT, Literal: "0"},
+			Value: 0,
+		}
+	case token.STRING:
+		return &ast.StringLiteral{
+			Token: token.Token{Type: token.STRING, Literal: ""},
+			Value: "",
+		}
+	case token.BOOL:
+		return &ast.Boolean{
+			Token: token.Token{Type: token.FALSE, Literal: "false"},
+			Value: false,
+		}
+	case token.FUNCTION:
+		return &ast.FunctionLiteral{
+			Token:      token.Token{Type: token.FUNCTION, Literal: "function"},
+			Parameters: []*ast.Identifier{},
+			Body: &ast.BlockStatement{
+				Token:      token.Token{Type: token.LBRACE, Literal: "{"},
+				Statements: []ast.Statement{},
+			},
+		}
+	default:
+		return nil
+	}
 }
 
 // Function parses the return statements.

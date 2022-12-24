@@ -12,12 +12,14 @@ func TestVarStatement(testing *testing.T) {
 		expectedIdentifier string
 		expectedValue      interface{}
 	}{
-		{"var x = 5;", "x", 5},
-		{"var y = true;", "y", true},
-		{"var foobar = y;", "foobar", "y"},
+		{"var x : int = 5;", "x", 5},
+		{"var y : bool = true;", "y", true},
+		{"var a : int = 1;", "a", 1},
 		// Variable Declaration Test
-		{"var a;", "a", 0},
-		{"var d;", "d", 0},
+		{"var a: int;", "a", 0},
+		{"var d: int;", "d", 0},
+		// Syntax Error Test
+		{"var a: int", "a", "Syntax Error: Expected ';', got 'EOF'"},
 	}
 
 	for _, tt := range tests {
