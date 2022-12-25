@@ -29,4 +29,4 @@ test_eval:
 
 # Build
 build:
-	$(COMPILER) build -o $(BIN)/$(PROGRAM).exe main.go
+	bash ./build.sh $(PROGRAM) && $(COMPILER) build -o $(BIN)/$(PROGRAM).exe
